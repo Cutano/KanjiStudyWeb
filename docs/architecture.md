@@ -2,7 +2,7 @@
 
 Status: implementation baseline. Research date: 2026-10-07.
 
-This document defines the intended system and its acceptance constraints. It does not claim that every described capability has already been implemented or tested. Feature evidence and delivery status belong in the requirements and project tracking documents.
+This document records the implemented system and its acceptance constraints. Feature evidence and measured platform support are recorded separately in the [release report](release-report.md).
 
 ## 1. Product Constraints
 
@@ -16,18 +16,18 @@ This document defines the intended system and its acceptance constraints. It doe
 
 ## 2. Decisions
 
-| Area | Decision | Rationale and constraint |
-| --- | --- | --- |
-| Application | React, TypeScript, Vite | Typed domain contracts, reusable accessible components, and a static production output without a server runtime. Pin dependencies with a lockfile. |
-| Styling | Local CSS design tokens and reusable components | A consistent responsive design without introducing a large UI abstraction solely for basic controls. Icons and fonts must be local assets or system resources. |
-| Catalog queries | `sql.js` in a dedicated Web Worker | Reuses the relational source and indexes, preserves associations, and isolates CPU work from interaction. The catalog is immutable at runtime. |
-| Personal storage | IndexedDB through a small typed repository (`idb` is appropriate) | Transactional local persistence independent of replaceable catalog assets. |
-| Offline shell | Service worker and versioned Cache Storage | Offline navigation and all app assets, including worker code and WebAssembly, are installed as a coherent release. |
-| Catalog installation | Foreground, verified download managed separately from shell installation | A large catalog must not make the service worker's installation an opaque, long-running download. Show progress and recover from interruption. |
-| Domain logic | Pure TypeScript modules | Scheduling, filtering, scoring, template parsing, and import validation can be tested without React or a browser. |
-| Rendering strokes | SVG reference paths and Pointer Events | Resolution independent animation; mouse, pen, and touch share one input model. |
-| Hosting | Multi-stage Docker build, static Nginx runtime | No database daemon, application process, writable server state, or runtime secrets. |
-| Verification | Vitest, repository integration tests, Playwright, installed-device checks | Exercise both deterministic logic and actual service worker, storage, and mobile behavior. |
+| Area                 | Decision                                                                  | Rationale and constraint                                                                                                                                       |
+| -------------------- | ------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Application          | React, TypeScript, Vite                                                   | Typed domain contracts, reusable accessible components, and a static production output without a server runtime. Pin dependencies with a lockfile.             |
+| Styling              | Local CSS design tokens and reusable components                           | A consistent responsive design without introducing a large UI abstraction solely for basic controls. Icons and fonts must be local assets or system resources. |
+| Catalog queries      | `sql.js` in a dedicated Web Worker                                        | Reuses the relational source and indexes, preserves associations, and isolates CPU work from interaction. The catalog is immutable at runtime.                 |
+| Personal storage     | IndexedDB through a small typed repository (`idb` is appropriate)         | Transactional local persistence independent of replaceable catalog assets.                                                                                     |
+| Offline shell        | Service worker and versioned Cache Storage                                | Offline navigation and all app assets, including worker code and WebAssembly, are installed as a coherent release.                                             |
+| Catalog installation | Foreground, verified download managed separately from shell installation  | A large catalog must not make the service worker's installation an opaque, long-running download. Show progress and recover from interruption.                 |
+| Domain logic         | Pure TypeScript modules                                                   | Scheduling, filtering, scoring, template parsing, and import validation can be tested without React or a browser.                                              |
+| Rendering strokes    | SVG reference paths and Pointer Events                                    | Resolution independent animation; mouse, pen, and touch share one input model.                                                                                 |
+| Hosting              | Multi-stage Docker build, static Nginx runtime                            | No database daemon, application process, writable server state, or runtime secrets.                                                                            |
+| Verification         | Vitest, repository integration tests, Playwright, installed-device checks | Exercise both deterministic logic and actual service worker, storage, and mobile behavior.                                                                     |
 
 Vite's production build is intended for static hosting; its preview server is a local verification tool, not the production server. [Vite deployment documentation](https://vite.dev/guide/static-deploy.html)
 
@@ -35,13 +35,13 @@ Vite's production build is intended for static hosting; its preview server is a 
 
 The source database is 98,181,120 bytes (93.633 MiB), before a distributable copy removes historical learner statistics. `sql.js` uses an in-memory database. A worker avoids main-thread blocking but does **not** remove the cost of loading the file and constructing SQLite's memory representation. Avoid retaining an extra ArrayBuffer in React state, transfer buffers to the worker, and measure actual memory behavior on supported mobile hardware. [sql.js project documentation](https://github.com/sql-js/sql.js)
 
-| Alternative | Disposition |
-| --- | --- |
-| SQL.js + cached immutable database | Selected baseline. Simple, established query behavior; requires a real mobile memory and cold-start gate. |
-| Official SQLite Wasm + OPFS | Preferred next adapter if baseline memory is unacceptable. It can use persistent files, but VFS choice affects locking, multi-tab support, browser compatibility, and hosting headers. Do not implement two engines before evidence requires it. |
-| Entire catalog converted to IndexedDB rows | Rejected baseline. Duplicates relational query and migration logic, creates a lengthy import, and makes link-heavy dictionary features harder to maintain. |
-| Large JSON bundle in the main thread | Rejected. Expensive parse and memory use; no suitable relational indexes. |
-| HTTP range requests without a full local copy | Rejected for offline readiness. A page cache is insufficient when an unseen lookup must work offline. |
+| Alternative                                   | Disposition                                                                                                                                                                                                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| SQL.js + cached immutable database            | Selected baseline. Simple, established query behavior; requires a real mobile memory and cold-start gate.                                                                                                                                        |
+| Official SQLite Wasm + OPFS                   | Preferred next adapter if baseline memory is unacceptable. It can use persistent files, but VFS choice affects locking, multi-tab support, browser compatibility, and hosting headers. Do not implement two engines before evidence requires it. |
+| Entire catalog converted to IndexedDB rows    | Rejected baseline. Duplicates relational query and migration logic, creates a lengthy import, and makes link-heavy dictionary features harder to maintain.                                                                                       |
+| Large JSON bundle in the main thread          | Rejected. Expensive parse and memory use; no suitable relational indexes.                                                                                                                                                                        |
+| HTTP range requests without a full local copy | Rejected for offline readiness. A page cache is insufficient when an unseen lookup must work offline.                                                                                                                                            |
 
 SQLite's documentation distinguishes the OPFS VFS (which needs cross-origin isolation headers) from the access-handle pool VFS, with different concurrency tradeoffs. These constraints should be revisited only if replacing the selected repository adapter. [SQLite Wasm persistence documentation](https://sqlite.org/wasm/doc/tip/persistence.md)
 
@@ -105,23 +105,25 @@ The reproducible content build must:
 
 ### 4.1 Identity and Parsing Rules
 
-| Source property | Required handling |
-| --- | --- |
-| Character `code` | Unicode code point. Use `String.fromCodePoint`, not `fromCharCode`; preserve supplementary-plane characters. |
-| Kanji/radical overlap | Identity includes kind, for example `kanji:23398` or `radical:23398`; a code alone is not globally unique. |
-| Vocabulary, name, sentence IDs | Stable record identifiers, not character codes. Gaps are valid. |
-| Twelve classification systems | Use the stored level and sequence pair, including original/revised variants. Zero means unclassified where documented. Do not silently relabel one system as another. |
-| Readings and templates | Parse into typed text/annotation tokens and render as text nodes. Never interpret source content as HTML. Preserve meaningful okurigana boundaries and annotations. |
-| Sentence annotations | Parse ruby markup and construct plain-text span positions separately. Do not apply vocabulary offsets to the raw annotated string. |
-| Missing component catalog entries | Keep associations with left joins; show available code point and fallback text. Private-use glyphs require an explicit display fallback. |
-| Missing stroke paths | Show meaning/readings and allow applicable study modes; explain unavailable guided strokes and do not fabricate grading. |
-| Source learning aggregates | Excluded from fresh-user state. Documented source units and unusual scores are not the definition of new application metrics. |
+| Source property                   | Required handling                                                                                                                                                     |
+| --------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Character `code`                  | Unicode code point. Use `String.fromCodePoint`, not `fromCharCode`; preserve supplementary-plane characters.                                                          |
+| Kanji/radical overlap             | Identity includes kind, for example `kanji:23398` or `radical:23398`; a code alone is not globally unique.                                                            |
+| Vocabulary, name, sentence IDs    | Stable record identifiers, not character codes. Gaps are valid.                                                                                                       |
+| Twelve classification systems     | Use the stored level and sequence pair, including original/revised variants. Zero means unclassified where documented. Do not silently relabel one system as another. |
+| Readings and templates            | Parse into typed text/annotation tokens and render as text nodes. Never interpret source content as HTML. Preserve meaningful okurigana boundaries and annotations.   |
+| Sentence annotations              | Parse ruby markup and construct plain-text span positions separately. Do not apply vocabulary offsets to the raw annotated string.                                    |
+| Missing component catalog entries | Keep associations with left joins; show available code point and fallback text. Private-use glyphs require an explicit display fallback.                              |
+| Missing stroke paths              | Show meaning/readings and allow applicable study modes; explain unavailable guided strokes and do not fabricate grading.                                              |
+| Source learning aggregates        | Excluded from fresh-user state. Documented source units and unusual scores are not the definition of new application metrics.                                         |
 
 There are 628 kanji without stroke paths. The database also contains 8,132 vocabulary audio **resource identifiers**, but no audio binary files or complete resource URLs. These are input limitations, not proof that audio or every writing exercise can run offline. [Database reference](../Resource/kanji_database.md)
 
 ### 4.2 Audio and Other External Features
 
 If audio is part of the accepted feature inventory, provide an explicit offline audio adapter using bundled, appropriately sourced recordings or a bundled local synthesis model. Include its resources in initialization, size estimates, manifests, and offline tests. Browser `speechSynthesis` may be offered when available, but device voice availability and offline behavior must be verified before it counts as offline parity. A label or enabled play button without functioning local playback is not completion.
+
+The implemented build now resolves all 8,132 stored audio references against the pinned Kanji alive MP3 archive, packages them into locally hosted shards, and emits an offset index plus hashes. This closes the source database's missing-binary gap for the referenced recordings. The full offline content installation is approximately 142.4 MiB; actual playback and installed-device behavior still require the release tests.
 
 External dictionary links, app-store purchase flows, remote synchronization, and similar platform-specific behavior must be recorded in the parity matrix with the actual web adaptation. Opening a third-party website is never part of the guaranteed offline surface.
 
@@ -185,17 +187,19 @@ HTTPS is required in deployment. A phone loading an ordinary LAN HTTP address do
 
 Use a versioned IndexedDB schema. Suggested stores/responsibilities are:
 
-| Store | Durable data |
-| --- | --- |
-| Settings | Theme, study display options, selected classification, daily goal, accessibility preferences. |
-| Character progress | Kind-qualified character ID, learning status, review schedule, quiz and writing aggregates. |
-| Groups | User groups, membership ordering, names, and study configuration. |
-| Customizations | Notes, custom meanings/readings, and pinned examples, separate from immutable source. |
-| Review events | Stable event ID, timestamp, local calendar day, mode, result, duration in documented milliseconds, and source session. |
-| Session checkpoints | Configured queue, current position, completed responses, and resumable mode state. |
-| Metadata | Schema version, current catalog version, import/export metadata, and readiness records. |
+| Store               | Durable data                                                                                                           |
+| ------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| Settings            | Theme, study display options, selected classification, daily goal, accessibility preferences.                          |
+| Character progress  | Kind-qualified character ID, learning status, review schedule, quiz and writing aggregates.                            |
+| Groups              | User groups, membership ordering, names, and study configuration.                                                      |
+| Customizations      | Notes, custom meanings/readings, and pinned examples, separate from immutable source.                                  |
+| Review events       | Stable event ID, timestamp, local calendar day, mode, result, duration in documented milliseconds, and source session. |
+| Session checkpoints | Configured queue, current position, completed responses, and resumable mode state.                                     |
+| Metadata            | Schema version, current catalog version, import/export metadata, and readiness records.                                |
 
 The actual schema may combine small stores where transactions and lookup patterns justify it. Avoid a generic untyped key/value blob for all application state.
+
+The current implementation stores one typed `UserProfile` record in the `kanji-study-web` IndexedDB database. `updateProfile` reads the latest committed record inside a read/write transaction, clones it, applies one synchronous domain change, commits, and only then publishes to React subscribers. This makes an answer plus its session advancement atomic and prevents stale full-profile writes across tabs. A broadcast channel refreshes other open tabs after commits. Split stores only when measured profile size or independent lookup patterns justify the migration.
 
 An answer operation commits the event, progress change, and session advancement in one transaction. Event IDs make repeated submission idempotent. Calculate aggregates from the same domain reducer used for new reviews, and use persisted events/checkpoints for recovery. Do not wait for `beforeunload` to save progress.
 
@@ -212,6 +216,8 @@ IndexedDB transactions are the persistence boundary; schema upgrades and version
 - A failed import leaves existing data unchanged. Offer a backup before destructive replacement or reset.
 - Do not claim compatibility with original Android backup files unless their format has been inspected and a fixture has passed a round trip.
 
+The implemented v1 backup envelope contains `app: "kanji-study-web"`, `schemaVersion: 1`, `exportedAt`, and a validated `profile`. Restore replaces the personal profile atomically. Extension packs have a separate v1 schema with an ID, name, author, license declaration, readings, and character explanations; importing an existing pack ID replaces that pack while preserving other profile data. No proprietary extension content is included in this schema definition.
+
 ## 7. Learning Engines
 
 ### 7.1 Shared Session Model
@@ -221,6 +227,8 @@ Flashcards, recognition quizzes, reading/meaning recall, and writing use an expl
 Use a seeded shuffle for deterministic tests. Distractors must be distinct, valid for the prompt type, and not semantically equivalent answers. Persist the displayed prompt and answer before advancing; restoring a session must not silently reshuffle it. Separate result calculation from presentation and from persistence.
 
 Review scheduling must have named, documented rules and a version. Do not represent a newly chosen algorithm as the original app's algorithm without evidence. Use injected clocks in tests, record UTC timestamps plus the intended local day, and define day-boundary behavior consistently for streaks and daily goals.
+
+The current v1 scheduler is explicitly SM-2-inspired: Again schedules ten minutes and resets repetitions; Hard uses at least one day and multiplies the previous interval by 1.2; Good uses one day, then three days, then the current ease multiplier; Easy uses at least four days and the ease multiplier times 1.3. Ease stays between 1.3 and 3. Manual learning ratings remain separate from scheduling grades. This is a documented web scheduling policy, not a reverse-engineered claim about the Android implementation.
 
 ### 7.2 Writing and Stroke Animation
 
@@ -242,15 +250,15 @@ Serve a restrictive content security policy compatible with bundled WebAssembly,
 
 ## 9. Release Risks and Evidence Gates
 
-| Risk | Required evidence or mitigation |
-| --- | --- |
-| SQL.js catalog peak memory on mobile | Measured initialization, repeated search, and session stability on representative Android and iOS devices. Switch the repository adapter if baseline is unsuitable. |
-| Missing original media or feature data | Trace every observed original feature to locally available resources; record gaps explicitly rather than adding nonfunctional controls. |
-| iOS installation/storage differences | Real Home Screen launch, initialization, airplane-mode restart, and durable progress verification. Desktop WebKit alone is insufficient. |
-| Interrupted or corrupt content update | Fault-injection test leaves the current ready version and progress usable. |
-| Stale service worker assets | Upgrade test with two build versions, an open session, and subsequent offline restart. |
-| Quota failure or eviction | Clear recovery UI; initialization never claims ready; imported/exported progress remains independently testable. |
-| Source encoding ambiguities | Golden examples and a full-catalog parser scan; distinguish inferred conventions from proven ones. |
-| Original app behavior not observed | Mark unknowns in the requirements matrix and inspect them before claiming complete parity. |
+| Risk                                   | Required evidence or mitigation                                                                                                                                     |
+| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| SQL.js catalog peak memory on mobile   | Measured initialization, repeated search, and session stability on representative Android and iOS devices. Switch the repository adapter if baseline is unsuitable. |
+| Missing original media or feature data | Trace every observed original feature to locally available resources; record gaps explicitly rather than adding nonfunctional controls.                             |
+| iOS installation/storage differences   | Real Home Screen launch, initialization, airplane-mode restart, and durable progress verification. Desktop WebKit alone is insufficient.                            |
+| Interrupted or corrupt content update  | Fault-injection test leaves the current ready version and progress usable.                                                                                          |
+| Stale service worker assets            | Upgrade test with two build versions, an open session, and subsequent offline restart.                                                                              |
+| Quota failure or eviction              | Clear recovery UI; initialization never claims ready; imported/exported progress remains independently testable.                                                    |
+| Source encoding ambiguities            | Golden examples and a full-catalog parser scan; distinguish inferred conventions from proven ones.                                                                  |
+| Original app behavior not observed     | Mark unknowns in the requirements matrix and inspect them before claiming complete parity.                                                                          |
 
 See [testing strategy](testing.md) for concrete acceptance cases and required evidence.

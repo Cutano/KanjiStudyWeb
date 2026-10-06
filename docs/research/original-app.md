@@ -50,28 +50,42 @@ Flashcards swipe or use previous/next controls; tapping reveals character detail
 
 The multiple-choice setup displays last studied, quizzes, and accuracy. Observed prompt types are Info → Kanji, Kanji → Meaning, Kanji → Readings, and Example → Kanji. Content toggles include on-readings, kun-readings, additional Asian readings, meanings, and custom notes. Session options include repeating incorrect items, pause-after-answer policy, quiz ordering (initially least seen), full meanings, automatic reading audio, hiding answers until a tap, no timeouts, and disappearing-answer challenge mode. The tutorial states that timers and distractors adapt to performance. Exact adaptive formulas were not exposed.
 
+Further observed writing setup distinguishes automatic stroke detection, manual stroke detection, and manual self-check. Prompts can use character information or random examples. Session settings include detection strictness, hints after consecutive mistakes, repeat-until-perfect, automatic reading audio, a character-shadow practice aid, and disappearing-answer challenge mode. The tutorial describes correct stroke order and a flower-mark grade after attempts. Exact recognition tolerances and grading formulas are not exposed.
+
 Writing's entry point explicitly advertises stroke detection and self-check. Ordered source stroke paths are present for all kana/radicals and most kanji. The intended independent Web implementation should support guided tracing, recognition against ordered geometric paths, and honest self-assessment when no paths exist. It must not describe glyph display or a free drawing pad alone as stroke detection.
 
-### Search and dictionaries — dataset plus app entry points
+### Search and dictionaries — observed and dataset
 
-The app exposes search for kanji and words, favorites, and character information. The database supports textual lookup across meanings/readings, stroke count, component intersection, multiple kanji classification systems, vocabulary, proper names, and linked example sentences. Search detail behavior beyond the inspected entry points must be verified in browser acceptance tests rather than labeled pixel-identical Android behavior.
+The app exposes search for kanji and words, favorites, and character information. The database supports textual lookup across meanings/readings, stroke count, component intersection, multiple kanji classification systems, vocabulary, proper names, and linked example sentences. The search screen has Words and Kanji tabs with result counts, select-all, clipboard paste, and contextual filter controls. The app recommends the external GBoard handwriting keyboard for search-by-drawing; no built-in search recognizer was observed.
+
+Observed word-search criteria: multiple kanji tokens (intersection), kana/romaji reading prefixes, English meanings, quoted meanings that exclude romaji, JLPT `n1`–`n5`, minimum known-kanji ratings `1*`/`2*`/`3*`, exact unique-kanji count, `-cN` total character count, `-c` commonness, `-f` favorites, and `-a` native audio. Dialect, field, part-of-speech, miscellaneous, and reading/kanji-information filter pickers are present. Supported criteria can use double-dash exclusion.
+
+Observed kanji search criteria: readings/meanings, direct glyphs, multiple radicals including duplicate occurrences, one or more stroke counts, multiple JLPT/grade levels, exact ratings `0*`–`3*`, favorites, commonness, decomposition availability, add-on availability, and ignored Guided Study items. Radical/filter pickers show remaining-result counts. A Web filter UI may express these semantics without retaining the Android query syntax.
+
+A directly observed 水 detail page exposes favorites, study rating, custom set, stroke animation/practice, and aggregate-user mistake views. It shows grade, sequence, strokes, study time, quizzes, progress, editable meaning/readings/notes, components, and a decomposition tree. Its tutorial explicitly confirms reading examples, selected words, example sentences, and names. Global-user mistake aggregates are not a backend capability of the independent Web app; personal mistake tracking is the offline equivalent.
 
 Character data includes ordered SVG stroke paths; components/decomposition; readings; meanings; related vocabulary, sentences, and proper names; other-language readings; name readings; alternate forms; kokuji and phantom flags. Vocabulary includes multiple readings/senses, tags, commonness, level, references, annotations, and audio identifiers. New user notes, favorites, overrides, and study ratings belong to a separate profile.
 
+### Radical position legend — observed follow-up
+
+Opening a radical detail and tapping **Position** displays a native legend: 偏 (へん), Left Side; 旁 (つくり), Right Side; 冠 (かんむり), Top; 脚 (あし), Bottom; 垂 (たれ), Northwest; 繞 (にょう), Southwest; 構 (かまえ), Enclosure; and No common position. These English labels were independently confirmed in the installed APK's `screen_radicals_info_*` string resources. Capture: `captures/50-radical-position-legend.xml` and `.png`.
+
+The database's numeric mapping remains based on its representative glyphs (documented in the supplied database guide): 0 unspecified, 1 left, 2 right, 3 top, 4 bottom, 5 northwest, 6 southwest, 7 enclosure. The observed UI confirms the category meanings and legend order; it does not expose the integer enum itself. Preserve the raw category and label any inferred mapping accordingly.
+
 ## Settings inventory — observed
 
-| Category | Visible purpose |
-| --- | --- |
-| Study options | Show romaji, simplify meanings, quiz timer |
-| Display | Character font, rotation, accessibility |
-| Guided Study | Workload, quiz configuration, ready notifications |
-| Notifications | Daily target, study reminders, campaign |
-| Audio | Native audio, bulk download, text-to-speech |
-| Localization | Translations, volunteers, additional readings |
-| Backup and restore | Online backup, local import and export |
-| Troubleshooting | Search history, tutorial reset, progress reset |
-| Support | Restore purchases, FAQ, developer contact, donations |
-| About | Release notes, app summary, linking, credits, analytics, privacy, builds |
+| Category           | Visible purpose                                                          |
+| ------------------ | ------------------------------------------------------------------------ |
+| Study options      | Show romaji, simplify meanings, quiz timer                               |
+| Display            | Character font, rotation, accessibility                                  |
+| Guided Study       | Workload, quiz configuration, ready notifications                        |
+| Notifications      | Daily target, study reminders, campaign                                  |
+| Audio              | Native audio, bulk download, text-to-speech                              |
+| Localization       | Translations, volunteers, additional readings                            |
+| Backup and restore | Online backup, local import and export                                   |
+| Troubleshooting    | Search history, tutorial reset, progress reset                           |
+| Support            | Restore purchases, FAQ, developer contact, donations                     |
+| About              | Release notes, app summary, linking, credits, analytics, privacy, builds |
 
 For the static Web port, local backup/restore and durable offline storage replace backend-dependent cloud backup. Browser settings and OS controls govern home-screen installation, audio voices, rotation, and notification support.
 
@@ -96,20 +110,20 @@ The user clarified that completion targets **all core functionality**, with late
 
 The Android Development Credits screen gives the following source acknowledgements. These are evidence for follow-up attribution, not a definitive license opinion on every field in the supplied snapshot.
 
-| Source | License/permission text shown |
-| --- | --- |
-| Jim Breen's WWWJDIC | Creative Commons Attribution-ShareAlike 4.0 |
-| KanjiVG | Creative Commons Attribution-ShareAlike 3.0 |
-| UniDic | Modified BSD |
-| Tatoeba | Creative Commons Attribution 2.0 |
-| Tanos | Creative Commons Attribution 2.0 |
-| Kanji alive (word audio) | Creative Commons Attribution 4.0 |
-| BabelStone IDS, Andrew West | Free to use, without permission |
-| Remembering the Kanji | Added with permission |
-| Kanji Learner's Course | Added with permission |
-| Kanji in Context | Added with permission |
-| Frequency lists, Dmitry Shpika | Creative Commons Attribution 4.0 |
-| Wikipedia | Creative Commons Attribution 3.0 |
+| Source                         | License/permission text shown               |
+| ------------------------------ | ------------------------------------------- |
+| Jim Breen's WWWJDIC            | Creative Commons Attribution-ShareAlike 4.0 |
+| KanjiVG                        | Creative Commons Attribution-ShareAlike 3.0 |
+| UniDic                         | Modified BSD                                |
+| Tatoeba                        | Creative Commons Attribution 2.0            |
+| Tanos                          | Creative Commons Attribution 2.0            |
+| Kanji alive (word audio)       | Creative Commons Attribution 4.0            |
+| BabelStone IDS, Andrew West    | Free to use, without permission             |
+| Remembering the Kanji          | Added with permission                       |
+| Kanji Learner's Course         | Added with permission                       |
+| Kanji in Context               | Added with permission                       |
+| Frequency lists, Dmitry Shpika | Creative Commons Attribution 4.0            |
+| Wikipedia                      | Creative Commons Attribution 3.0            |
 
 Project code uses LGPL-3.0-or-later as requested. Content licenses and acknowledgements remain separate. The original application's brand artwork, mascot, paid explanatory texts, and UI assets are not necessary to reproduce core workflows.
 

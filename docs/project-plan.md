@@ -20,13 +20,13 @@ The user explicitly selected: complete all core features first and support later
 
 ## Workstreams
 
-| Workstream | Responsibilities | Deliverables |
-| --- | --- | --- |
-| Product research | Observe Android navigation and study flows | Original-app audit, requirements, parity matrix |
-| Data engineering | Inspect encodings, content coverage, efficient queries | Data audit, reproducible catalog build, worker APIs |
-| Architecture and quality | Evaluate offline storage and browser behavior | Architecture decisions, tests, reliability checks |
-| Product engineering | Design and implement responsive workflows | App shell, library, study, reading, progress, settings |
-| Release engineering | Production packaging and verification | Docker image, deployment guide, release evidence |
+| Workstream               | Responsibilities                                       | Deliverables                                           |
+| ------------------------ | ------------------------------------------------------ | ------------------------------------------------------ |
+| Product research         | Observe Android navigation and study flows             | Original-app audit, requirements, parity matrix        |
+| Data engineering         | Inspect encodings, content coverage, efficient queries | Data audit, reproducible catalog build, worker APIs    |
+| Architecture and quality | Evaluate offline storage and browser behavior          | Architecture decisions, tests, reliability checks      |
+| Product engineering      | Design and implement responsive workflows              | App shell, library, study, reading, progress, settings |
+| Release engineering      | Production packaging and verification                  | Docker image, deployment guide, release evidence       |
 
 ## Milestones
 
@@ -49,4 +49,4 @@ The user explicitly selected: complete all core features first and support later
 
 ## Status
 
-Research in progress. The release checklist and parity matrix will carry evidence as work completes.
+All six delivery milestones are complete for the accepted core workflow and extension-import scope. Final verification passed 62 unit/integration tests, 22 production browser acceptance cases, Docker hosting checks, accessibility audits, and installed Android emulator offline acceptance. See `release-report.md` and `android-verification.md` for measured evidence. The unchecked release items are physical iOS Home Screen acceptance and deployment to a user-provided public HTTPS origin; no such device or hostname was available. Original paid extension texts, exact proprietary algorithms, and unprovided source content remain the documented boundaries rather than hidden completion claims.

@@ -6,15 +6,15 @@ Date: 2026-10-07. Status: source inspection and data runtime verified; physical 
 
 The audit read `Resource/kanji_database.md` and opened `Resource/kanji.db` with SQLite `mode=ro`. `PRAGMA integrity_check` returned `ok`. SHA-256 was independently verified as `f0ab73a3a8d425455f93647c4305b76185d8156592df0cf534bbf4f7674ce4e6`. The source remains unchanged.
 
-| Catalog | Records | Relevant limitations |
-| --- | ---: | --- |
-| Kanji | 7,045 | 628 lack stroke paths; 157 lack English meaning; 9 code points exceed U+FFFF |
-| Kana | 148 | 74 per script, including dataset-designated archaic forms |
-| Radicals | 265 | Component links include 1,629 other component codes |
-| Vocabulary | 214,894 | 40,749 have no written-form string; readings still exist |
-| Names | 87,950 | IDs and spellings are not interchangeable |
-| Sentences | 16,277 | Annotated text requires parsing; 2 have no vocabulary links |
-| Audio references | 8,132 | References only; files are external to the database |
+| Catalog          | Records | Relevant limitations                                                         |
+| ---------------- | ------: | ---------------------------------------------------------------------------- |
+| Kanji            |   7,045 | 628 lack stroke paths; 157 lack English meaning; 9 code points exceed U+FFFF |
+| Kana             |     148 | 74 per script, including dataset-designated archaic forms                    |
+| Radicals         |     265 | Component links include 1,629 other component codes                          |
+| Vocabulary       | 214,894 | 40,749 have no written-form string; readings still exist                     |
+| Names            |  87,950 | IDs and spellings are not interchangeable                                    |
+| Sentences        |  16,277 | Annotated text requires parsing; 2 have no vocabulary links                  |
+| Audio references |   8,132 | References only; files are external to the database                          |
 
 The three aggregate tables (`analytics`, `quiz_mistake`, `draw_mistake`) contain neither user identities nor timestamps. They must not initialize personal progress. Build a derived catalog excluding them, and store new progress in a separate user database. Their scores and durations are not authoritative grading algorithms.
 
@@ -97,3 +97,13 @@ Current primary sources confirm [EDRDG's dictionary terms](https://www.edrdg.org
 - `npx vitest run src/data` exercises the full source catalog and assets plus installation transactions. The suite covers sequence permutations, Unicode and missing paths, compound filters, vocabulary relationships, the entire sentence parser corpus, every audio slice and digest, corrupt-download retry, failed-update rollback, offline initialization, cancellation, and profile-preserving removal.
 - Actual Playwright Chromium and WebKit engines initialized the complete catalog and recordings, queried 学 and 学校, and decoded the native 学校 MP3 (approximately 1.05 seconds). This is engine testing on macOS, not a claim of physical iPhone or Android installation/memory testing.
 - A browser cancellation check stopped after the catalog file, resumed from that verified asset, then removed the reference library while preserving an unrelated user database.
+- Production acceptance passes in Chromium desktop and WebKit mobile: complete catalog counts, stroke/ruby details, native audio decoding, favorite and backup restoration, cold offline opening, corrupted asset rejection, and cancellation/resume without re-downloading verified files. WebKit offline verification shuts down a real isolated origin because the automation engine's synthetic offline switch fails before service-worker dispatch. Corruption and delayed-response tests also use the actual static origin, avoiding service-worker routing limitations.
+- Search accepts unions within requested JLPT or stroke-count values, intersections across different dimensions and text terms, exclusions, meaning phrases, kana-script equivalence, and vocabulary common/audio/POS filters. Tests verify these rules against the complete derived SQLite catalog.
+- Final production data acceptance on 2026-10-07: `npx playwright test tests/e2e/offline-catalog.spec.ts tests/e2e/extensions.spec.ts --output=.cache/e2e-data-final` passed **8/8 cases in 31.0 seconds**, across Chromium desktop and WebKit mobile. Both engines decoded the native 学校 recording after a cold offline page load. The extension journey imported original user-authored content while the origin was unavailable, verified provenance/export and invalid replacement rollback, displayed readings/explanations, and restored the extension plus read tracking after profile reset and backup import.
+- Additional metadata mappings preserve Korean romanization, kana source flags, radical variant bases, and mixed Kangxi ordinal/base-code values. Component navigation resolves an actual radical or kanji identity and leaves uncataloged components unlinked. A regression test serializes catalog update completion before reference deletion, protecting against in-flight noncancelable storage writes.
+
+## Reproducible release environment
+
+The digest-pinned Docker toolchain is the canonical byte-reproducible release environment. A local Node 24 build can bundle a different SQLite release. The final Mac and Docker catalogs have identical content after the 100-byte SQLite file header; the only uncompressed differences are two bytes within SQLite's offset 96–99 writer-version field (Mac 3.51.2, Docker 3.53.4). Gzip also records the originating OS. These are legitimate provenance differences, not dictionary differences, and each manifest correctly hashes its own artifacts. Do not erase the writer version to disguise an environment change. See the [SQLite file format specification](https://sqlite.org/fileformat.html#write_library_version_number_and_version_valid_for_number).
+
+For this release, the local browser-test catalog version is `9ab7b1f2087fbe502ed7`; the Docker catalog version is `18993e9136e118e785b8`. Both contain the same records and all 8,132 audio references. Byte equality of SQLite content after its header was verified with SHA-256 `82e8d19da0c3566361c229b1304088f9863efd17f2009d71aa10275f1f23ee6f`.
