@@ -9,3 +9,6 @@ test-results/
 docs/research/captures/
 
 public/data/
+
+*.tsbuildinfo
+Resource/reference/

@@ -1,6 +1,6 @@
 # Data Audit and Offline Packaging
 
-Date: 2026-10-07. Status: source inspection complete; runtime contract pending architecture review.
+Date: 2026-10-07. Status: source inspection and data runtime verified; physical iOS/Android device qualification remains separate.
 
 ## Evidence and Scope
 
@@ -89,3 +89,11 @@ Current primary sources confirm [EDRDG's dictionary terms](https://www.edrdg.org
 - Every audio ID resolves to an in-bounds MP3 slice; all shard digests match; at least representative files decode in Chromium and WebKit.
 - Fresh-install, interrupted-install resume, corrupt shard, insufficient storage, catalog update, and cold offline reload exercise real storage/service worker behavior.
 - New user progress starts empty, remains isolated from source aggregates, survives catalog update/reload, and round-trips through export/import.
+
+## Implementation Verification
+
+- `npm run data:prepare` generated all catalog entities and 8,132 recordings in nine immutable assets totaling 142.4 MiB. Repeating the command with the same local toolchain produced the same manifest version, `9ab7b1f2087fbe502ed7`. Audio archive SHA-256: `c9cf970981c5d8c3f05bc9216c3b36a644a8be389183fb5b667b233028ec5aa4`.
+- Compressed catalog bytes deliberately use a `.sqlite.bin` extension. Vite applies `Content-Encoding: gzip` to `.gz` files, which makes Fetch decode the bytes before application digest verification; opaque binary transport avoids that mismatch.
+- `npx vitest run src/data` exercises the full source catalog and assets plus installation transactions. The suite covers sequence permutations, Unicode and missing paths, compound filters, vocabulary relationships, the entire sentence parser corpus, every audio slice and digest, corrupt-download retry, failed-update rollback, offline initialization, cancellation, and profile-preserving removal.
+- Actual Playwright Chromium and WebKit engines initialized the complete catalog and recordings, queried 学 and 学校, and decoded the native 学校 MP3 (approximately 1.05 seconds). This is engine testing on macOS, not a claim of physical iPhone or Android installation/memory testing.
+- A browser cancellation check stopped after the catalog file, resumed from that verified asset, then removed the reference library while preserving an unrelated user database.

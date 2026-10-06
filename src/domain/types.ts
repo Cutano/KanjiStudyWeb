@@ -78,7 +78,12 @@ export interface StudyConfig {
   shuffle: boolean;
   repeatMistakes: boolean;
   prompt: QuizPrompt;
-  writingMode: 'guided' | 'test' | 'self';
+  writingMode: 'guided' | 'test' | 'manual' | 'self';
+  writingStrictness?: 'relaxed' | 'normal' | 'strict';
+  writingHints?: boolean;
+  quizTimerSeconds?: number;
+  hideAnswers?: boolean;
+  autoAdvance?: boolean;
   guided: boolean;
 }
 export interface ReviewCard { due: number; interval: number; ease: number; repetitions: number; lapses: number }
@@ -94,7 +99,7 @@ export interface CharacterProgress {
 }
 export interface CustomSet { id: string; name: string; description: string; keys: CharacterKey[]; createdAt: number; updatedAt: number }
 export interface StudyEvent { id: string; at: number; key: CharacterKey; mode: StudyMode; correct: boolean; durationMs: number; rating?: Rating }
-export interface SavedSession { config: StudyConfig; index: number; queue: CharacterKey[]; correct: number; answers: number; startedAt: number }
+export interface SavedSession { sessionId?: string; mistakes?: CharacterKey[]; config: StudyConfig; index: number; queue: CharacterKey[]; correct: number; answers: number; startedAt: number }
 export interface Settings {
   theme: 'light' | 'dark' | 'system';
   dailyGoal: number;
