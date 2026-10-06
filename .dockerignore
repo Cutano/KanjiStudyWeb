@@ -1,0 +1,17 @@
+.git
+.github
+.cache
+.DS_Store
+node_modules
+dist
+coverage
+playwright-report
+test-results
+public/data
+docs/research/captures
+*.log
+*.tsbuildinfo
+.env
+.env.*
+**/*.apk
+**/*backup*.json

@@ -1,0 +1,63 @@
+name: Verify
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  application:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 24
+          cache: npm
+      - run: npm ci
+      - run: npm run format:check
+      - name: Cache verified audio source
+        uses: actions/cache@v4
+        with:
+          path: .cache/kanji-alive/audio-mp3.zip
+          key: kanji-audio-c9cf970981c5d8c3f05bc9216c3b36a644a8be389183fb5b667b233028ec5aa4
+      - run: npm run data:prepare
+      - run: npm test
+      - run: node scripts/prepare-licenses.mjs
+      - run: npm run build
+      - name: Install browser test runtimes
+        run: npx playwright install --with-deps chromium webkit
+      - name: Verify browser journeys and accessibility
+        run: npm run test:e2e -- --project=chromium-desktop --project=webkit-mobile
+      - name: Start the production static server
+        run: >-
+          docker run --detach --name kanji-static-check --publish 127.0.0.1:8080:8080
+          --read-only --tmpfs /tmp:rw,size=16m,mode=1777
+          --cap-drop ALL --security-opt no-new-privileges:true
+          --volume "$PWD/nginx.conf:/etc/nginx/nginx.conf:ro"
+          --volume "$PWD/dist:/usr/share/nginx/html:ro"
+          nginxinc/nginx-unprivileged:stable-alpine@sha256:15c994d10d6d78658721c3bcafff14cb281fba2a4bdf9d5ba92c416a472516e3
+      - name: Verify production serving behavior
+        run: node scripts/verify-static-host.mjs
+      - name: Stop the static server
+        if: always()
+        run: docker rm --force kanji-static-check || true
+      - name: Retain production build
+        uses: actions/upload-artifact@v4
+        with:
+          name: kanji-study-web-static
+          path: dist
+          retention-days: 7
+      - name: Retain browser report and failure traces
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: kanji-study-web-browser-verification
+          path: |
+            playwright-report
+            test-results
+          if-no-files-found: ignore
+          retention-days: 7

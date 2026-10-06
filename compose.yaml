@@ -1,0 +1,14 @@
+services:
+  kanji-study:
+    build: .
+    image: kanji-study-web:local
+    ports:
+      - "${KANJI_BIND_ADDRESS:-127.0.0.1}:${KANJI_PORT:-8080}:8080"
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /tmp:size=16m,mode=1777
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
