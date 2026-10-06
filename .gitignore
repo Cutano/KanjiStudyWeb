@@ -7,3 +7,5 @@ test-results/
 .cache/
 *.log
 docs/research/captures/
+
+public/data/

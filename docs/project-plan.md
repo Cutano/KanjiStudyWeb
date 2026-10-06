@@ -1,0 +1,52 @@
+# Kanji Study Web — Delivery Plan
+
+## Product objective
+
+Deliver an independent, maintainable, LGPL-3.0-or-later, browser-based implementation of the observed Kanji Study learning workflows. It must be installable on Android and iOS, work offline after initialization, and deploy as static files in Docker without an application server.
+
+## Working agreements
+
+- English engineering documentation and source identifiers; accessible, responsive product UI.
+- Research the supplied Android reference and database before freezing repository guidance.
+- Record observations, decisions, acceptance criteria, evidence, and unresolved gaps separately.
+- Source database is immutable reference material. Its learning history does not belong to a new web profile.
+- Do not represent inaccessible paid content, missing audio, or unverified browser capabilities as implemented parity.
+- Preserve user data through updates. Export/import is a first-class feature.
+- Commit coherent milestones; run checks relevant to each change.
+
+## Accepted scope clarification (2026-10-07)
+
+The user explicitly selected: complete all core features first and support later import of extension content. Full locked KLC Graded Reading Sets and Outlier dictionary text are therefore not release prerequisites. Provide documented, validated local extension import rather than locked or fabricated content. All available core catalog content and licensed Kanji alive native word audio remain in scope.
+
+## Workstreams
+
+| Workstream | Responsibilities | Deliverables |
+| --- | --- | --- |
+| Product research | Observe Android navigation and study flows | Original-app audit, requirements, parity matrix |
+| Data engineering | Inspect encodings, content coverage, efficient queries | Data audit, reproducible catalog build, worker APIs |
+| Architecture and quality | Evaluate offline storage and browser behavior | Architecture decisions, tests, reliability checks |
+| Product engineering | Design and implement responsive workflows | App shell, library, study, reading, progress, settings |
+| Release engineering | Production packaging and verification | Docker image, deployment guide, release evidence |
+
+## Milestones
+
+1. **Research baseline:** observed functional inventory, data gaps, architecture decision, protected AGENTS.md.
+2. **Foundation:** typed domain contracts, data preparation, worker queries, durable profile, production shell.
+3. **Learning workflows:** library/search/details, flashcards, adaptive quizzes, handwriting, guided reviews, reading.
+4. **Personalization:** custom sets, favorites, notes, ratings, statistics, settings, export/import.
+5. **Offline release:** transactional initialization, service worker, install support, Docker and browser tests.
+6. **Parity closure:** compare every requirement to implementation and evidence; document remaining external blockers.
+
+## Completion gates
+
+- All implementable, observed core workflows have working UI and automated acceptance coverage.
+- Full supplied content is available offline with correct record identities and missing-data handling.
+- User progress, customizations and backups survive reload and service-worker updates.
+- Writing accepts plausible ordered strokes and rejects materially incorrect direction/shape.
+- Cold offline navigation works after production initialization, including worker/WASM and deep links.
+- Production build, meaningful unit/integration/browser tests, and container health check pass.
+- Android/iOS platform limitations and unavailable original content are reported honestly.
+
+## Status
+
+Research in progress. The release checklist and parity matrix will carry evidence as work completes.
