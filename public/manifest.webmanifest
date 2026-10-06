@@ -1,0 +1,32 @@
+{
+  "id": "/",
+  "name": "Kanji Study Web",
+  "short_name": "Kanji Study",
+  "description": "Your Japanese learning companion, entirely offline.",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#f7f6f0",
+  "theme_color": "#244c40",
+  "orientation": "any",
+  "categories": ["education", "books"],
+  "icons": [
+    {
+      "src": "/icons/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/icons/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    { "name": "Daily review", "url": "/#study" },
+    { "name": "Search dictionary", "url": "/#library" },
+    { "name": "My sets", "url": "/#sets" }
+  ]
+}

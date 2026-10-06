@@ -1,0 +1,67 @@
+KANJI STUDY WEB — CONTENT PROVENANCE AND ACKNOWLEDGMENTS
+
+Project code: LGPL-3.0-or-later. See LGPL-3.0.txt and GPL-3.0.txt.
+Runtime library notices and license texts: DEPENDENCY-LICENSES.txt.
+
+SUPPLIED CATALOG
+
+The catalog derives from the user-supplied Resource/kanji.db snapshot audited on
+2026-10-07, SHA-256:
+f0ab73a3a8d425455f93647c4305b76185d8156592df0cf534bbf4f7674ce4e6
+
+This snapshot contains no source-version or attribution table. The Android
+reference application's credits identify the sources below. These credits are
+retained as provenance evidence; they do not establish that every permission
+granted to the original application transfers to this independent project.
+Third-party content retains its own terms and is not relicensed as LGPL.
+
+EDRDG / WWWJDIC — Japanese dictionaries and character information
+Creative Commons Attribution-ShareAlike 4.0, as credited by the reference app.
+Electronic Dictionary Research and Development Group:
+https://www.edrdg.org/edrdg/licence.html
+
+KanjiVG — stroke geometry
+Creative Commons Attribution-ShareAlike 3.0.
+https://kanjivg.tagaini.net/
+
+Tatoeba — example sentences
+Creative Commons Attribution 2.0, as credited by the reference app.
+https://tatoeba.org/
+
+Tanos — JLPT material
+Creative Commons Attribution 2.0, as credited by the reference app.
+https://www.tanos.co.uk/
+
+BabelStone is also acknowledged by the reference application's credits.
+Remembering the Kanji and Kanji in Context material was described there as used
+with permission. Separately permissioned sequence/content data requires its own
+provenance review before public redistribution.
+
+LOCAL WORD RECORDINGS
+
+Kanji alive — Harumi Hibino Lory and Arno Bosse
+Creative Commons Attribution 4.0 International.
+https://kanjialive.com/
+https://github.com/kanjialive/kanji-data-media
+https://github.com/kanjialive/kanji-data-media/blob/master/LICENSE.md
+
+Source archive: https://media.kanjialive.com/examples_audio/audio-mp3.zip
+SHA-256: c9cf970981c5d8c3f05bc9216c3b36a644a8be389183fb5b667b233028ec5aa4
+
+The build selects 8,132 referenced MP3 recordings from the archive and packages
+their original bytes into indexed local shards. Recordings are not re-recorded
+or synthesized. The packaging and lookup index are adaptations for offline web
+delivery. No Kanji alive mnemonic hints or textbook lesson content is bundled.
+
+USER EXTENSIONS AND ORIGINAL APPLICATION
+
+KLC/Outlier paid explanatory and reading content is not bundled. Users may import
+their own authorized material in the documented extension JSON format. Imported
+packs retain their supplied author/license declarations.
+
+Kanji Study Web is an independent implementation. It is not affiliated with or
+endorsed by the original Android application's developer. Original application
+code, branded artwork, and locked extension text have not been incorporated.
+
+These notices are available offline. The cited source websites require a
+network connection. Consult docs/research/data-audit.md for the research record.

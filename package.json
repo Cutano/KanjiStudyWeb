@@ -15,7 +15,10 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "test:e2e": "playwright test",
-    "data:prepare": "node scripts/prepare-data.mjs"
+    "data:prepare": "node scripts/prepare-data.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "licenses:prepare": "node scripts/prepare-licenses.mjs"
   },
   "dependencies": {
     "fflate": "^0.8.3",
@@ -26,6 +29,7 @@
     "sql.js": "^1.14.2"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "^1.63.0",
     "@types/node": "^26.6.4",
     "@types/react": "^19.3.0",

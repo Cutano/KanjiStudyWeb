@@ -1,0 +1,10 @@
+AGENTS.md
+Resource/
+public/data/
+public/licenses/
+dist/
+node_modules/
+coverage/
+playwright-report/
+test-results/
+.cache/
