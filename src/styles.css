@@ -2035,6 +2035,7 @@ rt {
   display: flex;
   flex-direction: column;
   gap: 17px;
+  min-width: 0;
 }
 .settings-fields > label {
   display: flex;
@@ -3845,10 +3846,6 @@ rt {
   .modal .form-stack label {
     font-size: 12px;
   }
-  .form-stack input,
-  .form-stack textarea {
-    font-size: 16px;
-  }
   .install-instructions p {
     font-size: 12px;
   }
@@ -4115,4 +4112,15 @@ rt {
 }
 .personal-filters {
   flex-wrap: wrap;
+}
+
+@media (max-width: 850px), (any-pointer: coarse) {
+  /* Keep iOS from zooming small form text on focus, including in landscape.
+     This readability floor overrides compact component styles; the viewport
+     remains zoomable and larger text preferences still apply through rem. */
+  input,
+  textarea,
+  select {
+    font-size: max(16px, 1rem) !important;
+  }
 }
