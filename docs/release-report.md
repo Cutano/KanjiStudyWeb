@@ -127,3 +127,17 @@ Created the public repository [Cutano/KanjiStudyWeb](https://github.com/Cutano/K
 - Browser and installed-device acceptance were not rerun for this source publication; their evidence remains in the reports above and `ai-speech.md`.
 
 Publishing the Git repository does not deploy a public application origin. Docker and HTTPS hosting remain documented in `deployment.md`.
+
+## Multi-platform container verification — 2026-10-07
+
+Built source revision `f093b7b3819984ec0ffa3fed9db4e5e78b590e7d` with the existing digest-pinned Dockerfile for `linux/amd64` and `linux/arm64`. The application version is `0.2.0`; OCI labels identify its GitHub source and revision.
+
+- Both variants started with a read-only filesystem, a temporary `/tmp`, all Linux capabilities dropped, and `no-new-privileges`. Static host checks passed for the shell, icons, Wasm, nine catalog/audio assets, cache headers, speech-provider CSP, and missing-asset behavior.
+- All nine content asset byte lengths and SHA-256 digests matched the served manifest on both variants. Both used catalog version `18993e9136e118e785b8`.
+- On the arm64 container, Chromium and WebKit each initialized the real library, opened 学, and saved a favorite. After stopping the container and verifying the origin was unreachable, fresh pages reopened the dictionary through the production service worker, retained the favorite, and decoded the native 学校 recording without page errors.
+- The arm64 container reached Docker's healthy state. The amd64 variant's health command passed under Docker Desktop emulation on the arm64 host; this is not a native x86 hardware test. Browser acceptance used the arm64 variant and does not constitute physical-device acceptance.
+- The unchanged application source passed TypeScript checks, **108 unit/integration tests**, and a local production build during the preceding GitHub publication. Documentation formatting and whitespace checks passed for the container usage instructions.
+
+Published to the public Docker Hub repository [cutano/kanji-study-web](https://hub.docker.com/r/cutano/kanji-study-web). Registry inspection confirmed both Linux architectures and retained build provenance attestations. The release index digest is `sha256:b62e01fb6910c4c37aab6551b98d70d10e04c2c4f7a21f982749a75778d2a111`; tags `0.2.0`, `sha-f093b7b`, and `latest` identify that index. Anonymous Docker Hub API reads confirmed the repository is public. Credentials were read only through Docker's configured credential helper and were not stored in the project or image.
+
+The fixed release can be pulled as `cutano/kanji-study-web@sha256:b62e01fb6910c4c37aab6551b98d70d10e04c2c4f7a21f982749a75778d2a111`. Publishing this image does not provide an HTTPS application hostname.

@@ -8,6 +8,25 @@ The application is currently configured for the root of an origin, for example `
 
 ## Build and Run with Docker
 
+### Published Docker Hub image
+
+The public image is [cutano/kanji-study-web](https://hub.docker.com/r/cutano/kanji-study-web). Tags `0.2.0`, `sha-f093b7b`, and `latest` initially identify the same release with both `linux/amd64` and `linux/arm64` variants. Docker selects the host architecture automatically. Prefer a version tag or the recorded release digest for a fixed deployment; `latest` may move with future releases.
+
+Run the prebuilt image without a local database or build toolchain:
+
+```sh
+docker run -d --name kanji-study-web \
+  --restart unless-stopped \
+  -p 127.0.0.1:8080:8080 \
+  --read-only --tmpfs /tmp:rw,size=16m,mode=1777 \
+  --cap-drop ALL --security-opt no-new-privileges:true \
+  cutano/kanji-study-web:0.2.0
+```
+
+Open [the local application](http://localhost:8080). Use the HTTPS reverse proxy below for remote devices. To explicitly select the x86-64 variant, add `--platform linux/amd64` to `docker run` or `docker pull`.
+
+### Build from source
+
 Requirements: Docker with Compose and BuildKit, and access to the source database at `Resource/kanji.db`.
 
 ```sh

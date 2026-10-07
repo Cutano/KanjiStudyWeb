@@ -103,6 +103,19 @@ Run commands from the repository root. The supplied database at `Resource/kanji.
 
 ### Docker
 
+Use the prebuilt [Docker Hub image](https://hub.docker.com/r/cutano/kanji-study-web), available for **amd64 and arm64**:
+
+```sh
+docker run -d --name kanji-study-web --restart unless-stopped \
+  -p 127.0.0.1:8080:8080 --read-only --tmpfs /tmp:rw,size=16m,mode=1777 \
+  --cap-drop ALL --security-opt no-new-privileges:true \
+  cutano/kanji-study-web:0.2.0
+```
+
+The image already contains the dictionary and audio. Docker automatically selects your host's architecture. See the [deployment guide](docs/deployment.md) for tags and updates.
+
+Or build from source:
+
 With Docker and Compose installed:
 
 ```sh
