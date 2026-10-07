@@ -2938,11 +2938,6 @@ rt {
     align-items: flex-end;
     justify-content: center;
   }
-  .word-tags {
-    flex-wrap: wrap;
-    justify-content: flex-end;
-    max-width: 100px;
-  }
   .word-main > a {
     display: block;
     margin-bottom: 5px;
@@ -3459,9 +3454,6 @@ rt {
   }
   .word-main > span {
     font-size: 11px;
-  }
-  .word-tags {
-    max-width: 80px;
   }
   .word-actions {
     gap: 5px;
