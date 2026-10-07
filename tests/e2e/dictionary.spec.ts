@@ -247,17 +247,17 @@ test("dictionary ranking, lexical senses, pitch and standalone sentences work of
         ),
     ).toEqual(["今日", "漢字", "書き取り"]);
     await offline
-      .getByRole("checkbox", { name: "Separate linked words", exact: true })
-      .check();
+      .getByRole("button", { name: "Separate linked words", exact: true })
+      .click();
     await expect(
       offline.locator(".sentence-detail-text .linked-sentence"),
     ).toHaveClass(/divided-words/);
     await offline
-      .getByRole("checkbox", { name: "Furigana", exact: true })
+      .getByRole("button", { name: "Furigana", exact: true })
       .click();
     await expect(offline.locator(".sentence-detail-text ruby")).toHaveCount(0);
     await offline
-      .getByRole("checkbox", { name: "Furigana", exact: true })
+      .getByRole("button", { name: "Furigana", exact: true })
       .click();
     await offline
       .getByRole("button", { name: "Mark as read", exact: true })

@@ -95,3 +95,16 @@ Verification against production shell `kanji-shell-c98413d19c1bd0d2`:
 - Visually inspected the refreshed desktop screenshot and short-window/mobile navigation captures. Formatting and whitespace checks passed for the changed text files.
 
 These are local production and automated browser checks. The Android emulator screenshot and installed-device report remain the earlier recorded evidence; physical iOS acceptance and a rebuilt Docker image were not part of this follow-up.
+
+## Sentence controls follow-up — 2026-10-07
+
+Moved Furigana and Separate linked words below the example sentence and translation, aligned to the right of Mark as read. Both controls now use native buttons with `aria-pressed`, subtle selected backgrounds, visible keyboard focus, and 44px minimum touch-target height. At narrow widths the options wrap to a right-aligned second row. Furigana retains its persisted profile preference; word separation retains its existing per-page state.
+
+Verification used the real bundled catalog and local production build:
+
+- TypeScript checking, production build, formatting, and whitespace checks passed.
+- Both existing offline dictionary acceptance cases passed in Chromium and mobile WebKit after updating the old checkbox selectors to button selectors. These cases shut down the static origin and reload through the production service worker.
+- All four existing light/dark dictionary accessibility cases passed in Chromium and mobile WebKit.
+- A targeted browser check verified Space/Enter activation, pressed state, reading visibility, furigana persistence after reload, and word spacing in both engines. Twelve layout checks covered both engines, both themes, and 1440px, 390px, and 320px widths; all retained right alignment without horizontal overflow. Desktop and narrow mobile captures were visually inspected.
+
+These are automated browser checks, not new physical iOS or installed Android verification.
