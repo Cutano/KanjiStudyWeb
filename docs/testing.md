@@ -116,14 +116,15 @@ Playwright documents distinct service-worker network events and routing behavior
 
 The following suites run against production assets and the real catalog, in desktop Chromium and mobile WebKit projects. Consult the release report for their latest results; their existence does not imply that all broader device gates are passed.
 
-| File                      | Coverage                                                                                                                                                                |
-| ------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `offline-catalog.spec.ts` | Full initialization, catalog queries, offline startup, integrity failures, cancellation, and cache repair.                                                              |
-| `study.spec.ts`           | Resumable flashcards, quiz options, actual stroke tracing and rejection, reading, and exported study results while offline.                                             |
-| `collections.spec.ts`     | Creation, split, copy/merge, atomic move, ordering, removal, CSV/JSON import/export, and mobile overflow while offline.                                                 |
-| `extensions.spec.ts`      | Authorized extension import, offline content use, persistence, and invalid import behavior.                                                                             |
-| `update.spec.ts`          | Two distinct shell versions on one origin, update deferral during study, exact profile preservation, old-shell cleanup, and offline checkpoint resume after activation. |
-| `accessibility.spec.ts`   | Automated WCAG checks for onboarding, nine main routes and a dialog in both themes, plus keyboard entry, focus containment, Escape, and focus restoration.              |
+| File                      | Coverage                                                                                                                                                                             |
+| ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `offline-catalog.spec.ts` | Full initialization, catalog queries, offline startup, integrity failures, cancellation, and cache repair.                                                                           |
+| `study.spec.ts`           | Resumable flashcards, quiz options, actual stroke tracing and rejection, reading, and exported study results while offline.                                                          |
+| `collections.spec.ts`     | Creation, split, copy/merge, atomic move, ordering, removal, CSV/JSON import/export, and mobile overflow while offline.                                                              |
+| `dictionary.spec.ts`      | Exact-result ranking, separate lexical labels and numbered senses, reading-specific mora pitch diagrams, linked standalone sentence pages, and their offline/accessibility behavior. |
+| `extensions.spec.ts`      | Authorized extension import, offline content use, persistence, and invalid import behavior.                                                                                          |
+| `update.spec.ts`          | Two distinct shell versions on one origin, update deferral during study, exact profile preservation, old-shell cleanup, and offline checkpoint resume after activation.              |
+| `accessibility.spec.ts`   | Automated WCAG checks for onboarding, nine main routes and a dialog in both themes, plus keyboard entry, focus containment, Escape, and focus restoration.                           |
 
 `offline-host.ts` provides an ephemeral static origin with response fault injection. Closing its server proves network unavailability without mocking catalog responses. The update test changes the shell version and an HTML release marker while retaining the same real catalog, representing an application-only release with a compatible personal schema.
 

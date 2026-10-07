@@ -138,3 +138,107 @@ See `Resource/kanji_database.md` for detailed counts and encodings. Important im
 - Most additional-language translations are absent; English glosses are populated. Do not manufacture localized dictionary translations.
 - Example annotations, sentence UTF-16 offsets, variation readings, and vocabulary sense templates need parsers and tests.
 - Exact Android SRS, timers, geometry tolerance, and purchase/backup formats are not supplied. Implement and document independently testable Web behavior.
+
+## Dictionary follow-up — 2026-10-07
+
+This follow-up compares the installed reference app's dictionary UI with the user's reported Web discrepancies. It used ordinary search, detail navigation, copy-entry, and inspection of installed APK string resources. No ratings, study answers, translations, notes, or other progress fields were edited. Captures 60–71 are local research evidence under `captures/` and are ignored by Git.
+
+### Search ordering: directly observed priorities
+
+The following are **visible result orders**, not guesses from dictionary IDs or meanings. `C` is the common-word badge, `—` means no badge was displayed, and the final column is the native sentence-count badge.
+
+Literal **今日** displayed `WORDS (25)` and began:
+
+| Order | Displayed entry                       | JLPT                       | Common | Native count |
+| ----- | ------------------------------------- | -------------------------- | ------ | ------------ |
+| 1     | 今日 (きょう / こんにち)              | N5                         | C      | 177          |
+| 2     | こんにちは、今日は                    | N3                         | C      | 5            |
+| 3     | 今日中に                              | —                          | —      | 1            |
+| 4     | 今日この頃 (other form: 今日このごろ) | —                          | C      | —            |
+| 5     | 今日的                                | —                          | C      | —            |
+| 6     | 今日中                                | —                          | —      | —            |
+| 7     | 今日あって明日ない身                  | Below the initial viewport |        |              |
+
+Literal **学** displayed `WORDS (1000+)` and began:
+
+| Order | Entry  | JLPT | Native count |
+| ----- | ------ | ---- | ------------ |
+| 1     | 学     | N3   | 18           |
+| 2     | 学校   | N5   | 162          |
+| 3     | 学生   | N5   | 138          |
+| 4     | 大学   | N5   | 112          |
+| 5     | 留学生 | N5   | 6            |
+| 6     | 科学   | N4   | 71           |
+| 7     | 数学   | N4   | 33           |
+
+All seven had the common badge. The N3 exact entry precedes N5 compounds, so **exact matching has priority over JLPT**. The N5 examples then precede N4 entries despite lower counts, so **JLPT precedes sentence count** within the remaining matches.
+
+The ASCII query **school** independently confirmed that second priority: 学校 N5/162, 生徒 N5/84, 門 N5/44, 授業 N5/22, 教室 N5/20, then 教育 N4/78 and 高校 N4/29. In particular, N5/20 precedes N4/78.
+
+Literal **漢字** displayed `WORDS (49)` and began: 漢字 (C, N5, 32), 常用漢字 (C, no count), 日本漢字能力検定, 漢字Ｔａｌｋ, 漢字源, 日本漢字能力検定協会, 常用漢字表, 和製漢字. The later entries had no visible JLPT, common, or count badges.
+
+These observations support an ordering of exact match, JLPT from N5 toward N1 followed by unclassified, sentence count descending, then commonness. The supplied schema's `search_sort_idx` on `(jlpt_level, sentence_count, is_common)` is consistent with the non-exact portion. The observations do **not** establish every tie-breaking rule, every form of exact reading normalization, or the final ordering among equal unclassified zero-count entries. Preserve a deterministic Web tie-break without calling it a verified native frequency order.
+
+The search overflow menu exposed only **Customize screen**. Its dialog offered romaji, pitch-accent numbers, larger example text, and search-toolbar filter buttons. No user-selectable result-sort control was observed. Captures: `63-today-search`, `64-search-menu`, `65-search-customize`, `67-school-search-jlpt`, `68-gaku-search`, `69-kanji-search`.
+
+### The count is example coverage, not general usage frequency
+
+Two installed APK resources confirm what the numeric badge means:
+
+- `content_description_sentence_count_tag`: “Number of sentences that contain this word.”
+- `dialog_example_word_tag_sentence_count`: “Found in Graded Reading exercises (%1$d) and example sentences (%2$d)”.
+
+Thus the count combines graded-reading associations and ordinary example sentences. It is **not** an independently supplied corpus-frequency rank. For 漢字, the displayed 32 is consistent with seven ordinary sentences plus 25 locked graded-reading exercises. 今日 displayed 96 ordinary sentences and a total badge of 177; only four graded exercises were accessible in its free subset.
+
+The supplied database snapshot is older than the installed reference content, and its stored sentence-count values are not equivalent to the native populated values. The Web app can derive counts from its available sentence-word associations, but missing graded-reading content/counts must not be fabricated. Exact native numerical parity is not established by the observed ordering.
+
+### Parts of speech and numbered senses
+
+Word lists, related-word cards, and word details use the same definition hierarchy:
+
+1. A smaller, muted blue-gray part-of-speech line.
+2. One line/block per numbered sense, with green sense numbers. Comma-separated synonyms remain in the same sense.
+3. A new part-of-speech line only when the inherited group changes.
+4. Usage restrictions, parenthetical explanations, and cross-reference qualifiers remain inline with the relevant sense in a muted color.
+5. **Other forms** and **Kanji and reading notes** are separate muted section labels; written variants can retain their own ruby.
+
+今日 has one `Noun, Adverb` label followed by two numbered senses: `today, this day`, then `(こんにち only) these days, recently, nowadays`. The reading restriction is visually muted. Its other readings こんち and こんじつ appear under **Other forms**, and the きょう reading has a separate Gikun note.
+
+The twelve-sense entry **上** confirms inheritance rather than one POS label per synonym or one global label:
+
+| Sense numbers | Displayed POS group |
+| ------------- | ------------------- |
+| 1             | Noun, No-adjective  |
+| 2–3           | Noun                |
+| 4             | Noun, No-adjective  |
+| 5–6           | No-adjective, Noun  |
+| 7–10          | Noun                |
+| 11            | Suffix              |
+| 12            | Noun                |
+
+Numbering remains continuous across these groups. The reversed POS order between senses 4 and 5 is preserved in the reference. Captures: `61-sentence-detail`, `62-today-word-detail`, `70-ue-search-senses`, `71-ue-word-detail`.
+
+### Pitch-accent graphs
+
+Word details place dot-and-line pitch diagrams after the written form/commonness/JLPT badges and before definitions. Each mora has a filled dot and a kana label below; an additional unlabelled hollow dot shows the pitch continuing onto the following particle. A downstep's accented mora is teal. The current native display setting hides numeric accent labels.
+
+- **漢字 / かんじ, accent 0:** か low, ん high, じ high, followed by a hollow high dot. No accented mora is highlighted.
+- **今日 / きょう, accent 1:** the combined mora きょ is high and accented, う is low, followed by a hollow low dot. Small ょ is not a separate mora.
+- **今日 / こんにち, accent 1:** こ high and accented, then ん・に・ち low, followed by a hollow low dot. This is a separate reading's diagram, not another accent attached to きょう.
+- **上 / うえ, accents 0 and 2:** two diagrams for the same reading. Both begin low/high; the first continues to a hollow high particle dot, while the second highlights え and drops to a hollow low particle dot.
+
+Captures: `60-kanji-word-detail`, `62-today-word-detail`, `71-ue-word-detail`.
+
+### Standalone sentence detail
+
+Tapping the ordinary sentence **今日は漢字の書き取りがある。** from 漢字 opens a dedicated native page. The toolbar title preserves navigation ancestry: `今日は漢字の書き取りがある。 ‹ 漢字`.
+
+The page contains:
+
+- Favorite, edit translations/notes, AnkiDroid, copy, TTS, and word-division actions.
+- The Japanese sentence with ruby and optional word spacing, followed by its translation. Linked lexical spans have dotted underlines.
+- A collapsible **Words (3)** section listing 今日, 漢字, 書き取る in sentence order. Inflected 書き取り links to dictionary form 書き取る.
+- A collapsible **Kanji (6)** section containing the sentence's constituent kanji with their readings/meanings.
+- Linked word cards navigate to their own word details and preserve the sentence ancestry in the toolbar.
+
+The parent word detail highlighted the source word 漢字 in teal inside example sentences. Capture: `61-sentence-detail`. This is an ordinary catalog example, not a paid reading text; the standalone navigation is therefore part of the core dictionary workflow.

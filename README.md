@@ -41,6 +41,8 @@ Explore kanji, practice recall and handwriting, build personal collections, and 
 
 All counts refer to the supplied catalog. See the [data audit](docs/research/data-audit.md) for coverage and provenance.
 
+Vocabulary search prioritizes exact matches and JLPT level, followed by available example counts and commonness. Word details include grouped definitions, separate part-of-speech labels, and mora pitch diagrams. Open any catalog example to explore its linked words and kanji, save notes, and mark it as read offline. See the [dictionary follow-up](docs/dictionary-parity.md) for reference comparisons and verification.
+
 |                               | What you can do                                                                                                                                                                                  |
 | :---------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | 🔎 **Explore the dictionary** | Search by text, reading, or romaji. Combine filters, inspect components and stroke counts, play stroke-order animations, and follow examples, related entries, and additional-language readings. |
@@ -163,7 +165,7 @@ npx playwright install chromium webkit
 npm run test:e2e
 ```
 
-The [recorded release verification](docs/release-report.md) reports **62 passing unit/integration tests** and **22 production browser cases**. Tests cover source-derived data, parsers, scheduling, persistence, backup/extension validation, installation integrity, and handwriting geometry. Browser acceptance uses the actual bundled data and production service worker, including fresh-page offline reloads.
+The initial [release verification](docs/release-report.md) reports **62 passing unit/integration tests** and **22 production browser cases**; the [dictionary follow-up](docs/dictionary-parity.md) records expanded coverage. Tests cover source-derived data, parsers, scheduling, persistence, backup/extension validation, installation integrity, and handwriting geometry. Browser acceptance uses the actual bundled data and production service worker, including fresh-page offline reloads.
 
 [Android emulator verification](docs/android-verification.md) also covers installation, a cold process launch with the origin unreachable, all four study modes, native audio, and persistence after restart. See the [test strategy](docs/testing.md) for details.
 
