@@ -152,3 +152,14 @@ The topbar search previously inherited the generic yellow input focus outline ar
 - The local Docker deployment rebuilt and started healthy. Static host checks passed for the shell, icons, Wasm, nine content assets, cache headers, CSP, and missing assets. The entry assets are `index-CEObIdxH.js` and `index-xg9xY10Q.css`.
 
 This follow-up updates the local deployment; the published Docker Hub release described above remains unchanged.
+
+## Character layout follow-up — 2026-10-07
+
+At widths up to 640px, the Character page now places its full-width kanji card above separate full-width Practice and Add buttons. The familiarity section follows these actions. The 641–850px layout retains its two columns, with a minimum card width and wrapping action labels to avoid compressing the stroke controls.
+
+Stroke controls shared by Character details and study views now use 36 × 36px buttons. The original broad SVG rule also applied the glyph's vertical margins to the button icons, making the controls unnecessarily tall; it now targets only the diagram's direct SVG. The counter uses nonshrinking, nonwrapping tabular digits so `4 / 4` and two-digit counts remain horizontal.
+
+- TypeScript, production build, formatting, and whitespace checks passed. This CSS-only refinement adds no permanent tests and does not rerun the unrelated unit suite.
+- Focused production checks passed in Chromium and WebKit at 320, 390, 640, 641, 850, 1180, and 1440px, across both themes and the real 日 and 鬱 catalog entries: 28 viewport/theme configurations and 56 character checks. Every control measured 36 × 36px, with contained icons; `4 / 4` and `29 / 29` remained single-line, and there was no horizontal overflow. At widths up to 640px, both action buttons were below the card and matched the aside's full width.
+- Previous/next stroke, play/pause/replay, Practice setup, and Add dialog opening/closing passed in both engines. Inspected [mobile dark layout](screenshots/character-mobile-layout.png) and [desktop light controls](screenshots/character-desktop-controls.png) from isolated browser contexts. These are browser simulations, not physical-device acceptance.
+- Local Docker rebuilt and started healthy. Static host verification passed for the shell, icons, Wasm, nine content assets, cache headers, CSP, and missing assets. The verified entry assets are `index-DNDS-HC0.js` and `index-DDz7RQDn.css`; the public Docker Hub image was not republished by this refinement.

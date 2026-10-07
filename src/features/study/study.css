@@ -634,7 +634,7 @@
   text-align: center;
   color: var(--text, #294f3d);
 }
-.stroke-diagram svg {
+.stroke-diagram > svg {
   display: block;
   margin: 12px auto;
   height: auto;
@@ -644,17 +644,20 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 6px;
+  gap: 4px;
   margin: 10px auto;
 }
 .stroke-controls button {
-  padding: 8px;
-  min-width: 35px;
-  min-height: 35px;
+  padding: 0;
+  width: 36px;
+  height: 36px;
+  flex: 0 0 36px;
 }
 .stroke-controls span {
   font-size: 11px;
-  margin-left: 10px;
+  flex-shrink: 0;
+  white-space: nowrap;
+  font-variant-numeric: tabular-nums;
   color: var(--muted, #7c8b73);
 }
 .reading-layout {

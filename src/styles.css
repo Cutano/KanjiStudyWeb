@@ -2900,8 +2900,11 @@ rt {
   }
   .character-aside {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(235px, 1fr) minmax(0, 1fr);
     align-items: center;
+  }
+  .character-aside > .button {
+    white-space: normal;
   }
   .stroke-card {
     grid-row: span 3;
@@ -3477,24 +3480,25 @@ rt {
   }
   .character-aside {
     gap: 10px;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: minmax(0, 1fr);
   }
   .stroke-card {
-    padding: 11px;
-    grid-row: span 2;
+    padding: 17px;
+    grid-row: auto;
+    max-width: none;
   }
   .character-aside > .button {
-    font-size: 9px;
-    min-height: 43px;
-    padding: 9px 7px;
-    gap: 5px;
+    font-size: 11px;
+    min-height: 45px;
+    padding: 11px 18px;
+    gap: 10px;
     white-space: normal;
   }
   .character-aside > .button svg {
-    width: 14px;
+    width: 17px;
   }
   .side-note {
-    grid-column: span 2;
+    grid-column: auto;
     display: flex;
     align-items: center;
     flex-wrap: wrap;
