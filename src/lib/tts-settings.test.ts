@@ -27,6 +27,7 @@ describe("device-only AI speech settings", () => {
       apiKey: "private-test-key",
       model: "custom-model",
       voice: "custom-voice",
+      responseFormat: "mp3",
     });
     expect(exportBackup()).not.toContain("private-test-key");
     expect(exportBackup()).not.toContain("speech.example");
@@ -62,9 +63,23 @@ describe("device-only AI speech settings", () => {
       mimeType: "audio/mpeg",
       lastUsed: 1,
     });
-    expect(await getTtsSettings()).toEqual({ ...legacy, enabled: true });
+    expect(await getTtsSettings()).toEqual({
+      ...legacy,
+      enabled: true,
+      responseFormat: "mp3",
+    });
     expect(db.version).toBe(2);
     expect(await db.get("audio", "existing-clip")).toBeDefined();
+  });
+
+  it("persists the selected audio format independently of the enable switch", async () => {
+    await saveTtsSettings({ ...DEFAULT_TTS_SETTINGS, responseFormat: "pcm" });
+    await saveTtsSettings({ ...(await getTtsSettings()), enabled: false });
+    expect(await getTtsSettings()).toEqual({
+      ...DEFAULT_TTS_SETTINGS,
+      enabled: false,
+      responseFormat: "pcm",
+    });
   });
 
   it.each([

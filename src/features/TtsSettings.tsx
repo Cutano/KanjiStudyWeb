@@ -1,5 +1,12 @@
 import { useEffect, useState, type FormEvent } from "react";
-import { Check, HardDrive, KeyRound, Save, Trash2 } from "lucide-react";
+import {
+  Check,
+  ChevronDown,
+  HardDrive,
+  KeyRound,
+  Save,
+  Trash2,
+} from "lucide-react";
 import { ErrorNotice } from "../components/common";
 import {
   DEFAULT_TTS_SETTINGS,
@@ -78,9 +85,9 @@ export function TtsSettings() {
     };
   }, []);
 
-  function edit(
-    field: Exclude<keyof SpeechSettings, "enabled">,
-    value: string,
+  function edit<Field extends Exclude<keyof SpeechSettings, "enabled">>(
+    field: Field,
+    value: SpeechSettings[Field],
   ) {
     setSettings((previous) => ({ ...previous, [field]: value }));
     setMessage("");
@@ -283,6 +290,31 @@ export function TtsSettings() {
             </datalist>
           </label>
         </div>
+        <label className="tts-field">
+          Output format
+          <span className="tts-format-select">
+            <select
+              value={settings.responseFormat}
+              onChange={(event) =>
+                edit(
+                  "responseFormat",
+                  event.target.value === "pcm" ? "pcm" : "mp3",
+                )
+              }
+              disabled={!ready || busy}
+              aria-describedby="tts-format-help"
+            >
+              <option value="mp3">MP3 · compressed audio</option>
+              <option value="pcm">PCM · Gemini TTS</option>
+            </select>
+            <ChevronDown size={16} aria-hidden="true" />
+          </span>
+        </label>
+        <p id="tts-format-help" className="muted small-text tts-field-help">
+          Choose PCM for Gemini TTS on OpenRouter. PCM is saved as playable WAV
+          audio, using 24 kHz, 16-bit mono unless the provider specifies a
+          different sample rate or channel count.
+        </p>
         <div className="button-group wrap">
           <button className="button" type="submit" disabled={!ready || busy}>
             <Save size={16} aria-hidden="true" />

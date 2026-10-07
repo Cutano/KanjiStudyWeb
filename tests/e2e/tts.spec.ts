@@ -7,8 +7,7 @@ import { startOfflineHost } from "./offline-host";
 const fakeKey = "test-only-key-never-valid-for-a-provider";
 
 /** A generated tone exercises browser audio decoding without any external fixture. */
-function waveFixture() {
-  const sampleRate = 8_000;
+function waveFixture(sampleRate = 8_000) {
   const samples = sampleRate;
   const wave = Buffer.alloc(44 + samples * 2);
   wave.write("RIFF", 0);
@@ -32,14 +31,14 @@ function waveFixture() {
   return wave;
 }
 
-async function startSpeechProvider() {
+async function startSpeechProvider(options: { pcmOnly?: boolean } = {}) {
   const requests: {
     authorization: string | undefined;
     path: string | undefined;
     body: Record<string, unknown>;
   }[] = [];
   let status = 200;
-  const audio = waveFixture();
+  const audio = waveFixture(options.pcmOnly ? 24_000 : 8_000);
   const server = createServer(async (request, response) => {
     response.setHeader("Access-Control-Allow-Origin", "*");
     response.setHeader(
@@ -53,10 +52,11 @@ async function startSpeechProvider() {
     }
     const chunks: Buffer[] = [];
     for await (const chunk of request) chunks.push(Buffer.from(chunk));
+    const body = JSON.parse(Buffer.concat(chunks).toString("utf8"));
     requests.push({
       authorization: request.headers.authorization,
       path: request.url,
-      body: JSON.parse(Buffer.concat(chunks).toString("utf8")),
+      body,
     });
     if (status !== 200) {
       response.writeHead(status, { "Content-Type": "application/json" }).end(
@@ -64,6 +64,25 @@ async function startSpeechProvider() {
           error: { message: "Test provider rejected this request." },
         }),
       );
+      return;
+    }
+    if (options.pcmOnly) {
+      if (body.response_format !== "pcm") {
+        response.writeHead(400, { "Content-Type": "application/json" }).end(
+          JSON.stringify({
+            error: {
+              message:
+                'Gemini TTS only supports response_format="pcm". Got "mp3".',
+              code: 400,
+            },
+          }),
+        );
+      } else {
+        // OpenRouter's raw PCM response may omit rate/channel parameters.
+        response
+          .writeHead(200, { "Content-Type": "audio/pcm" })
+          .end(audio.subarray(44));
+      }
       return;
     }
     response
@@ -307,6 +326,9 @@ test("native, configured AI and browser speech follow priority and cached AI sur
     await page.getByLabel("API key", { exact: true }).fill("unsaved-test-key");
     await page.getByLabel("Model", { exact: true }).fill("unsaved-model");
     await page.getByLabel("Voice", { exact: true }).fill("unsaved-voice");
+    await page
+      .getByRole("combobox", { name: "Output format", exact: true })
+      .selectOption("pcm");
     await enabled.focus();
     await page.keyboard.press("Space");
     await expect(enabled).not.toBeChecked();
@@ -325,6 +347,9 @@ test("native, configured AI and browser speech follow priority and cached AI sur
     await expect(page.getByLabel("Voice", { exact: true })).toHaveValue(
       "coral",
     );
+    await expect(
+      page.getByRole("combobox", { name: "Output format", exact: true }),
+    ).toHaveValue("mp3");
     await expect(page.getByText(/2 \/ 10 clips/)).toBeVisible();
 
     // Turning AI off leaves bundled recordings available and skips generated
@@ -436,10 +461,17 @@ test("AI errors are explicit, cache controls work and speech settings remain acc
       "type",
       "password",
     );
+    const formatBox = await page
+      .getByRole("combobox", { name: "Output format", exact: true })
+      .boundingBox();
+    expect(formatBox!.height).toBeGreaterThanOrEqual(44);
     provider.failWith(401);
     await navigate(page, "sentence/31");
     await sentenceAudio(page).click();
     await expect(page.getByRole("alert")).toBeVisible();
+    await expect(page.getByRole("alert")).toContainText(
+      "Test provider rejected this request.",
+    );
     expect(provider.requests).toHaveLength(1);
     await expect(page.locator("html")).not.toHaveAttribute(
       "data-browser-speech-count",
@@ -514,6 +546,136 @@ test("AI errors are explicit, cache controls work and speech settings remain acc
       "きっと万事うまくいく。",
     );
     expect(provider.requests).toHaveLength(3);
+  } finally {
+    await provider.close();
+    await host.close();
+  }
+});
+
+test("PCM-only providers show actionable errors and generated WAV plays from the offline cache", async ({
+  page,
+  context,
+}, testInfo) => {
+  const host = await startProductionPolicyHost();
+  const provider = await startSpeechProvider({ pcmOnly: true });
+  const errors: string[] = [];
+  page.on("pageerror", (error) => errors.push(error.message));
+  try {
+    await initialize(page, host.url);
+    await configure(page, provider.endpoint);
+    await page
+      .getByLabel("Model", { exact: true })
+      .fill("google/gemini-3.8-flash-tts");
+    await page.getByLabel("Voice", { exact: true }).fill("Leda");
+    await page
+      .getByRole("button", { name: "Save AI speech settings", exact: true })
+      .click();
+    await expect(
+      page.getByText("AI speech settings saved.", { exact: true }),
+    ).toBeVisible();
+    await navigate(page, "sentence/31");
+    await sentenceAudio(page).click();
+    await expect(page.getByRole("alert")).toContainText(
+      'HTTP 400: Gemini TTS only supports response_format="pcm". Got "mp3".',
+    );
+    expect(
+      await page.getByRole("alert").evaluate((notice) => {
+        const box = notice.getBoundingClientRect();
+        return box.left >= 0 && box.right <= innerWidth;
+      }),
+    ).toBe(true);
+    await expect(page.locator("html")).not.toHaveAttribute(
+      "data-browser-speech-count",
+    );
+    await page.screenshot({
+      path: testInfo.outputPath("pcm-provider-error.png"),
+      fullPage: true,
+    });
+
+    await navigate(page, "settings");
+    await expect(page.getByText(/0 \/ 10 clips/)).toBeVisible();
+    expect(provider.requests).toHaveLength(1);
+    await page
+      .getByRole("combobox", { name: "Output format", exact: true })
+      .selectOption("pcm");
+    await page
+      .getByRole("button", { name: "Save AI speech settings", exact: true })
+      .click();
+    await expect(
+      page.getByText("AI speech settings saved.", { exact: true }),
+    ).toBeVisible();
+    await page.reload();
+    await expect(
+      page.getByRole("combobox", { name: "Output format", exact: true }),
+    ).toHaveValue("pcm");
+    await navigate(page, "sentence/31");
+    await playMedia(page, sentenceAudio(page));
+    expect(
+      Number(await page.locator("html").getAttribute("data-audio-duration")),
+    ).toBeCloseTo(1, 2);
+    expect(provider.requests).toHaveLength(2);
+    expect(provider.requests[1].body).toEqual({
+      model: "google/gemini-3.8-flash-tts",
+      voice: "Leda",
+      input: "きっと万事うまくいく。",
+      response_format: "pcm",
+    });
+    await playMedia(page, sentenceAudio(page));
+    expect(provider.requests).toHaveLength(2);
+    await navigate(page, "settings");
+    await expect(page.getByText(/1 \/ 10 clips/)).toBeVisible();
+
+    await provider.close();
+    await host.close();
+    const cold = await context.newPage();
+    await observePlayback(cold);
+    cold.on("pageerror", (error) => errors.push(error.message));
+    await cold.goto(`${host.url}/#sentence/31`);
+    await expect(cold.getByRole("heading", { level: 1 })).toHaveText(
+      "Example sentence.",
+      { timeout: 60_000 },
+    );
+    await playMedia(cold, sentenceAudio(cold));
+    expect(
+      Number(await cold.locator("html").getAttribute("data-audio-duration")),
+    ).toBeCloseTo(1, 2);
+    expect(provider.requests).toHaveLength(2);
+    await expect(cold.locator("html")).not.toHaveAttribute(
+      "data-browser-speech-count",
+    );
+
+    // Capture the format control without credentials, in an isolated test profile.
+    await navigate(cold, "settings");
+    await cold
+      .getByRole("button", { name: "Clear API key", exact: true })
+      .click();
+    await expect(cold.getByLabel("API key", { exact: true })).toHaveValue("");
+    const card = cold.locator(".settings-section").filter({
+      has: cold.getByRole("heading", { name: "AI speech", exact: true }),
+    });
+    for (const theme of ["light", "dark"]) {
+      await cold
+        .getByRole("combobox", { name: "Appearance", exact: true })
+        .selectOption(theme);
+      await expect(cold.locator("html")).toHaveAttribute("data-theme", theme);
+      await cold
+        .getByRole("combobox", { name: "Appearance", exact: true })
+        .blur();
+      if (testInfo.project.name === "webkit-mobile") {
+        await cold
+          .getByRole("combobox", { name: "Output format", exact: true })
+          .evaluate((select) => select.scrollIntoView({ block: "center" }));
+        await cold.screenshot({
+          path: testInfo.outputPath(`pcm-settings-${theme}.png`),
+        });
+      } else {
+        await card.screenshot({
+          path: testInfo.outputPath(`pcm-settings-${theme}.png`),
+        });
+      }
+    }
+    await cold.close();
+    expect(errors).toEqual([]);
   } finally {
     await provider.close();
     await host.close();

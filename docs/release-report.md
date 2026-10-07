@@ -178,3 +178,7 @@ Git tag [`v0.2.2`](https://github.com/Cutano/KanjiStudyWeb/tree/v0.2.2) identifi
 - Registry inspection confirmed both `linux/amd64` and `linux/arm64` variants, retained provenance attestations, and identical digests for all three published tags. An anonymous Docker Hub read confirmed that the repository remains public. The verified release image also replaced the local container at `http://localhost:8080`, where static hosting checks passed.
 
 Pull the immutable release with `docker pull cutano/kanji-study-web@sha256:65db562fa842d1405e5740a15b122d482514cf7879e6d71fd9e28e32ab6029e2`, or use `cutano/kanji-study-web:0.2.2` for the versioned tag.
+
+## Version 0.2.3 local TTS repair — 2026-10-07
+
+Added PCM output support for the user's Gemini TTS provider, WAV playback/cache encapsulation, and redacted provider error details. The six affected production browser cases and all 132 unit/integration tests pass; see the [PCM compatibility follow-up](ai-speech.md#023-pcm-compatibility-fix--2026-10-07) for the diagnosis, upgrade instructions, and verification evidence. Unrelated browser workflows were not rerun for this focused repair. This is a locally verified source/container version, not a Docker Hub publication or an upgrade to the user's public HTTPS server.

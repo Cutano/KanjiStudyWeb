@@ -74,15 +74,36 @@
   font-size: 12px;
 }
 
-.tts-field input {
+.tts-settings .tts-field input,
+.tts-settings .tts-field select {
   width: 100%;
+  max-width: 100%;
   min-width: 0;
+  min-height: 44px;
   font-size: 13px;
 }
 
 .tts-field-help {
   margin-top: -7px;
   line-height: 1.7;
+}
+
+.tts-format-select {
+  position: relative;
+  display: block;
+}
+
+.tts-settings .tts-format-select select {
+  appearance: none;
+  padding-right: 40px;
+}
+
+.tts-format-select > svg {
+  position: absolute;
+  right: 14px;
+  top: calc(50% - 8px);
+  pointer-events: none;
+  color: var(--muted);
 }
 
 .tts-model-fields {
@@ -138,7 +159,8 @@
 }
 
 @media (max-width: 640px) {
-  .tts-field input {
+  .tts-settings .tts-field input,
+  .tts-settings .tts-field select {
     font-size: 16px;
   }
 }

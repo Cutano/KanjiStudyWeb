@@ -32,7 +32,11 @@ it("replaces candidate Blob audio without removing saved API settings or metadat
   await previous.put("metadata", 3, "generation");
   previous.close();
 
-  expect(await getTtsSettings()).toEqual({ ...settings, enabled: true });
+  expect(await getTtsSettings()).toEqual({
+    ...settings,
+    enabled: true,
+    responseFormat: "mp3",
+  });
   expect(await getTtsCacheStats()).toEqual({ count: 0, bytes: 0 });
   const upgraded = await openTtsDatabase();
   expect(upgraded.version).toBe(2);

@@ -86,6 +86,178 @@ describe("AI speech requests", () => {
     expect(fetch).toHaveBeenCalledTimes(5);
   });
 
+  it("requests PCM once, caches playable WAV separately, and preserves old MP3 cache identities", async () => {
+    const db = await openTtsDatabase();
+    await db.put("audio", {
+      key: JSON.stringify([
+        settings.endpoint,
+        settings.model,
+        settings.voice,
+        "漢字",
+      ]),
+      data: new Uint8Array([73, 68, 51]).buffer,
+      mimeType: "audio/mpeg",
+      lastUsed: 1,
+    });
+    const fetch = vi.fn(
+      async () =>
+        new Response(new Uint8Array([0, 128, 255, 127]), {
+          headers: { "Content-Type": "audio/pcm;rate=24000;channels=1" },
+        }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    expect((await getAiSpeech("漢字", settings)).type).toBe("audio/mpeg");
+    expect(fetch).not.toHaveBeenCalled();
+    const pcmSettings = { ...settings, responseFormat: "pcm" as const };
+    const wave = await getAiSpeech("漢字", pcmSettings);
+    expect(fetch).toHaveBeenCalledWith(
+      settings.endpoint,
+      expect.objectContaining({
+        body: expect.stringContaining('"response_format":"pcm"'),
+      }),
+    );
+    expect(wave.type).toBe("audio/wav");
+    expect(wave.size).toBe(48);
+    fetch.mockRejectedValue(new Error("Offline"));
+    const cached = await getAiSpeech("漢字", pcmSettings);
+    expect(await cached.arrayBuffer()).toEqual(await wave.arrayBuffer());
+    expect(cached.type).toBe("audio/wav");
+    expect(fetch).toHaveBeenCalledOnce();
+    expect(await getTtsCacheStats()).toEqual({ count: 2, bytes: 51 });
+  });
+
+  it("uses the selected PCM format for a binary response without MIME metadata", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () => new Response(new Uint8Array([1, 0]))),
+    );
+    expect(
+      (await getAiSpeech("漢字", { ...settings, responseFormat: "pcm" })).type,
+    ).toBe("audio/wav");
+  });
+
+  it("does not wrap audio that already has a playable container", async () => {
+    const bytes = new Uint8Array([82, 73, 70, 70]);
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(bytes, { headers: { "Content-Type": "audio/wav" } }),
+      ),
+    );
+    const audio = await getAiSpeech("漢字", {
+      ...settings,
+      responseFormat: "pcm",
+    });
+    expect(await audio.arrayBuffer()).toEqual(bytes.buffer);
+    expect(audio.type).toBe("audio/wav");
+  });
+
+  it("includes the WAV header in the 50 MB bound", async () => {
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(new Uint8Array([0, 0]), {
+            headers: {
+              "Content-Type": "audio/pcm",
+              "Content-Length": String(MAX_TTS_CACHE_BYTES - 42),
+            },
+          }),
+      ),
+    );
+    await expect(
+      getAiSpeech("漢字", { ...settings, responseFormat: "pcm" }),
+    ).rejects.toThrow("50 MB");
+    expect((await getTtsCacheStats()).count).toBe(0);
+  });
+
+  it("surfaces the provider's format error without retrying or caching it", async () => {
+    const detail = 'Gemini TTS only supports response_format="pcm". Got "mp3".';
+    const fetch = vi.fn(async () =>
+      Response.json({ error: { message: detail } }, { status: 400 }),
+    );
+    vi.stubGlobal("fetch", fetch);
+    await expect(getAiSpeech("漢字", settings)).rejects.toThrow(
+      `HTTP 400: ${detail}`,
+    );
+    expect(fetch).toHaveBeenCalledOnce();
+    expect((await getTtsCacheStats()).count).toBe(0);
+  });
+
+  it("redacts echoed credentials before displaying a bounded provider message", async () => {
+    const apiKey = "test+/=token";
+    const detail = `Bad key ${apiKey} ${encodeURIComponent(apiKey)} Bearer other-token sk-or-test-token ${"x".repeat(700)}`;
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async () =>
+        Response.json({ error: { message: detail } }, { status: 401 }),
+      ),
+    );
+    const error = await getAiSpeech("漢字", { ...settings, apiKey }).catch(
+      (reason: Error) => reason,
+    );
+    expect(error).toBeInstanceOf(Error);
+    const message = (error as Error).message;
+    expect(message).toContain("[REDACTED]");
+    for (const secret of [
+      apiKey,
+      encodeURIComponent(apiKey),
+      "other-token",
+      "sk-or-test-token",
+    ]) {
+      expect(message).not.toContain(secret);
+    }
+    expect(message.length).toBeLessThan(560);
+  });
+
+  it.each([
+    "<html>gateway error</html>",
+    "{broken json",
+    JSON.stringify({ other: "private detail" }),
+  ])(
+    "keeps generic HTTP context when a JSON error message is unavailable",
+    async (body) => {
+      vi.stubGlobal(
+        "fetch",
+        vi.fn(
+          async () =>
+            new Response(body, {
+              status: 502,
+              headers: { "Content-Type": "application/json" },
+            }),
+        ),
+      );
+      await expect(getAiSpeech("漢字", settings)).rejects.toThrow(
+        "HTTP 502. Check its settings",
+      );
+    },
+  );
+
+  it("bounds streamed error bodies and cancels oversized diagnostics", async () => {
+    const cancel = vi.fn();
+    const body = new ReadableStream<Uint8Array>({
+      start(controller) {
+        controller.enqueue(new Uint8Array(16_385));
+      },
+      cancel,
+    });
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(
+        async () =>
+          new Response(body, {
+            status: 400,
+            headers: { "Content-Type": "application/json" },
+          }),
+      ),
+    );
+    await expect(getAiSpeech("漢字", settings)).rejects.toThrow(
+      "HTTP 400. Check its settings",
+    );
+    expect(cancel).toHaveBeenCalledOnce();
+  });
+
   it("does not cache API errors and allows a later retry", async () => {
     const fetch = vi
       .fn()

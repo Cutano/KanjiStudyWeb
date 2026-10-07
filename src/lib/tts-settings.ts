@@ -1,11 +1,14 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 
+export type SpeechResponseFormat = "mp3" | "pcm";
+
 export interface TtsSettings {
   enabled: boolean;
   endpoint: string;
   apiKey: string;
   model: string;
   voice: string;
+  responseFormat: SpeechResponseFormat;
 }
 
 export const DEFAULT_TTS_SETTINGS: Readonly<TtsSettings> = Object.freeze({
@@ -14,6 +17,7 @@ export const DEFAULT_TTS_SETTINGS: Readonly<TtsSettings> = Object.freeze({
   apiKey: "",
   model: "gpt-4o-mini-tts",
   voice: "coral",
+  responseFormat: "mp3",
 });
 
 export interface CachedSpeech {
@@ -26,7 +30,8 @@ export interface CachedSpeech {
 interface TtsDatabase extends DBSchema {
   settings: {
     key: string;
-    value: Omit<TtsSettings, "enabled"> & { enabled?: boolean };
+    value: Omit<TtsSettings, "enabled" | "responseFormat"> &
+      Partial<Pick<TtsSettings, "enabled" | "responseFormat">>;
   };
   audio: { key: string; value: CachedSpeech };
   metadata: { key: string; value: number };
@@ -66,6 +71,7 @@ export function normalizeTtsSettings(settings: TtsSettings): TtsSettings {
     apiKey: settings.apiKey.trim(),
     model: settings.model.trim(),
     voice: settings.voice.trim(),
+    responseFormat: settings.responseFormat,
   };
   let endpoint: URL;
   try {
@@ -92,6 +98,9 @@ export function normalizeTtsSettings(settings: TtsSettings): TtsSettings {
   if (!normalized.model || !normalized.voice) {
     throw new Error("Enter both a speech model and a voice.");
   }
+  if (!["mp3", "pcm"].includes(normalized.responseFormat)) {
+    throw new Error("Choose MP3 or PCM as the speech output format.");
+  }
   if (/[\r\n]/.test(normalized.apiKey)) {
     throw new Error("The API key cannot contain line breaks.");
   }
@@ -103,7 +112,11 @@ export async function getTtsSettings(): Promise<TtsSettings> {
   const db = await openTtsDatabase();
   const stored = await db.get("settings", "current");
   return stored
-    ? { ...stored, enabled: stored.enabled ?? true }
+    ? {
+        ...stored,
+        enabled: stored.enabled ?? true,
+        responseFormat: stored.responseFormat ?? "mp3",
+      }
     : { ...DEFAULT_TTS_SETTINGS };
 }
 

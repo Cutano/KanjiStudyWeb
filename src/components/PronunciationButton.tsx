@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { LoaderCircle, Volume2 } from "lucide-react";
 import type { Vocabulary } from "../domain/types";
 import { cleanReading, vocabularyLabel } from "../data/text";
@@ -20,7 +20,22 @@ function PronunciationButton({
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   const [source, setSource] = useState<PronunciationSource>();
+  const errorNotice = useRef<HTMLSpanElement>(null);
   const current = useRef<AbortController>(undefined);
+  useLayoutEffect(() => {
+    const notice = errorNotice.current;
+    if (!notice) return;
+    // Playback buttons can sit at either edge of a narrow layout.
+    const positionNotice = () => {
+      notice.style.transform = "";
+      const { left, right } = notice.getBoundingClientRect();
+      const shift = Math.max(8 - left, Math.min(0, innerWidth - 8 - right));
+      notice.style.transform = `translateX(${shift}px)`;
+    };
+    positionNotice();
+    window.addEventListener("resize", positionNotice);
+    return () => window.removeEventListener("resize", positionNotice);
+  }, [error]);
   useEffect(() => {
     setBusy(false);
     setError("");
@@ -70,7 +85,7 @@ function PronunciationButton({
         </span>
       )}
       {error && (
-        <span className="pronunciation-error" role="alert">
+        <span className="pronunciation-error" role="alert" ref={errorNotice}>
           {error}
         </span>
       )}
