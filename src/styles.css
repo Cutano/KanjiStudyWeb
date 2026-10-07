@@ -450,7 +450,12 @@ rt {
   padding: 32px 22px 23px;
   display: flex;
   flex-direction: column;
+  overflow-y: auto;
+  overscroll-behavior-y: contain;
   z-index: 30;
+}
+.sidebar > * {
+  flex-shrink: 0;
 }
 .sidebar .brand {
   margin: 0 7px 46px;

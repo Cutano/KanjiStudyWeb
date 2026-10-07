@@ -80,3 +80,18 @@ Replaced the abstract mark in `public/icon.svg` with an original six-stroke vect
 - A separate Chromium production check verified that all three icon assets match the source bytes, including after initialization and an offline reload.
 
 This follow-up verifies the updated local production build. The baseline Docker image and installed-device report above have not been regenerated for this artwork change.
+
+## README screenshot and sidebar follow-up — 2026-10-07
+
+The previous desktop illustration combined a 1440 × 1080 viewport with a 1440 × 1364 full-page capture. The fixed sidebar correctly covered the viewport but ended 284 px before the captured document bottom, creating an apparent layout break. The [desktop overview](screenshots/overview-desktop.png) now uses a real 1440 × 1364 viewport and a viewport-only screenshot, taken after the production library and fonts loaded. Its served icon was compared directly with the current `public/icon.svg`. No screenshot-only styling or image compositing was applied.
+
+Inspection also reproduced a separate application defect at 1280 × 600: the fixed sidebar's settings link was below the visible window (y = 691–736), and the sidebar could not scroll. The sidebar now scrolls vertically when necessary, contains scroll overshoot, and preserves its children's natural sizes. Tall windows retain the existing bottom-aligned layout.
+
+Verification against production shell `kanji-shell-c98413d19c1bd0d2`:
+
+- `npm run typecheck`, `npm run build`, and all **62 unit/integration tests** passed.
+- **10 existing production browser cases** passed in Chromium and mobile WebKit: onboarding and light/dark WCAG checks, collection-dialog keyboard behavior, and actual catalog/audio/favorites persistence through a cold offline reload. The WebKit offline case shut down its static origin.
+- **24 targeted layout checks** passed: Chromium and WebKit × light/dark themes × 1440 × 1080, 1366 × 768, 1280 × 600, 844 × 390, 390 × 600, and 320 × 568 viewports, all using Larger text. Checks covered no horizontal page overflow, full sidebar viewport coverage, reaching the settings link with the keyboard, activating it, and scrolling to the offline status. Overflowing sidebars scrolled without moving the underlying page. WebKit link traversal used Option+Tab.
+- Visually inspected the refreshed desktop screenshot and short-window/mobile navigation captures. Formatting and whitespace checks passed for the changed text files.
+
+These are local production and automated browser checks. The Android emulator screenshot and installed-device report remain the earlier recorded evidence; physical iOS acceptance and a rebuilt Docker image were not part of this follow-up.
