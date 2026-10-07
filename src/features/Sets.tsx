@@ -1,6 +1,6 @@
 import { SentenceRow } from "../components/SentenceRow";
 import { useState } from "react";
-import { ArrowRight, Plus } from "lucide-react";
+import { ArrowRight, Play, Plus } from "lucide-react";
 import type { CharacterKey, CharacterSummary } from "../domain/types";
 import { catalog } from "../data/catalog";
 import { useProfile } from "../state/useProfile";
@@ -142,11 +142,14 @@ export function Favorites({ onStudy, onAddToSet }: SetProps) {
           </p>
         </div>
         <button
-          className="button"
+          className="button favorites-study-button"
+          aria-label="Study favorites"
+          title="Study favorites"
           disabled={!characters.data?.items.length}
           onClick={() => onStudy(characters.data!.items, "Favorite characters")}
         >
-          Study favorites
+          <Play size={18} aria-hidden="true" />
+          <span>Study favorites</span>
         </button>
       </div>
       <div className="tabs">

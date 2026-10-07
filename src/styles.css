@@ -3645,13 +3645,15 @@ rt {
   .study-groups + .button-group .button {
     font-size: 10px;
   }
-  .page-heading > .button {
-    font-size: 0;
-    min-width: 41px;
+  .favorites-study-button {
+    width: 45px;
+    min-width: 45px;
+    flex-shrink: 0;
+    gap: 0;
     padding: 11px;
   }
-  .page-heading > .button svg {
-    width: 18px;
+  .favorites-study-button > span {
+    display: none;
   }
   .favorites-banner {
     padding: 24px;
