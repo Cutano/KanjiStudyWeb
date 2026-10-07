@@ -32,6 +32,13 @@ Kanji Study Web is an independent, offline-first PWA implementing the observed c
 - Keep engineering documents in English. Record verified behavior separately from assumptions and platform limitations.
 - Do not add unrelated features, dependencies, abstractions, or speculative compatibility layers.
 
+## Commit messages
+
+- Follow the format established by the first five commits: `<type>: <description>`.
+- Use a lowercase type that describes the change, such as `feat`, `fix`, `docs`, `chore`, `test`, or `refactor`, followed by a colon and one space.
+- Write a concise English description starting with a lowercase imperative verb (for example, `add`, `fix`, or `record`), without a trailing period. Preserve the spelling and capitalization of proper names and technical identifiers.
+- Describe the concrete change; do not omit the type prefix. Examples: `feat: add verified offline catalog`, `fix: preserve concurrent study state`, and `docs: record release verification`.
+
 ## Verification
 
 - Run TypeScript checks, production build, and relevant automated tests before committing functional milestones.
