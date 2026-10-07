@@ -8,7 +8,8 @@ RUN --mount=type=cache,target=/root/.npm npm ci
 # Content generation is cached independently of UI changes. Its download is hash-pinned.
 COPY Resource/kanji.db ./Resource/kanji.db
 COPY scripts ./scripts
-RUN --mount=type=cache,target=/app/.cache/kanji-alive npm run data:prepare
+# The cache also contains a temporary catalog; platform builds must not mutate it concurrently.
+RUN --mount=type=cache,target=/app/.cache/kanji-alive,sharing=locked npm run data:prepare
 
 COPY . .
 RUN node scripts/prepare-licenses.mjs

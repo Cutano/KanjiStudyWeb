@@ -171,3 +171,4 @@ This release includes the independent AI speech enable switch, Library-style rou
 The intended release artifacts are Git tag `v0.2.2` and Docker Hub tags `0.2.2`, `latest`, and a source-revision tag, with `linux/amd64` and `linux/arm64` variants. Publication evidence is recorded below after the artifacts are verified and uploaded.
 
 - Release preparation passed all 111 unit/integration tests, TypeScript checking, production build, formatting, and whitespace checks. Dependency versions, the protected repository instructions, and the source database remain unchanged.
+- The first concurrent multi-platform build exposed a shared temporary-catalog race: one platform removed the other platform's `catalog.sqlite` from the BuildKit cache. The data-preparation mount now uses `sharing=locked`, serializing access while retaining the verified audio download cache. Application code and the generated-data contract are unchanged by this Docker build correction.
