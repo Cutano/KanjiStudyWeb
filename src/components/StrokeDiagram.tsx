@@ -25,6 +25,7 @@ export function StrokeDiagram({
   const [step, setStep] = useState(paths.length);
   const [playing, setPlaying] = useState(false);
   const [replay, setReplay] = useState(0);
+  const revealDuration = 750 / speed;
   useEffect(() => {
     setStep(paths.length);
     setPlaying(false);
@@ -63,25 +64,37 @@ export function StrokeDiagram({
           </text>
         ) : (
           paths.map((path, index) => (
-            <path
+            <g
               key={`${replay}-${index}`}
-              d={path}
               fill="none"
               stroke="currentColor"
               strokeWidth="3.2"
               strokeLinecap="round"
               strokeLinejoin="round"
-              pathLength="1"
-              opacity={index < step ? 1 : 0.07}
-              style={
-                playing && index === step - 1
-                  ? {
-                      strokeDasharray: 1,
-                      animation: `stroke-reveal ${750 / speed}ms linear both`,
-                    }
-                  : undefined
-              }
-            />
+            >
+              {playing && index === step - 1 && (
+                <path
+                  d={path}
+                  opacity="0"
+                  style={{
+                    animation: `stroke-guide-clear ${revealDuration}ms step-end both`,
+                  }}
+                />
+              )}
+              <path
+                d={path}
+                pathLength="1"
+                opacity={index < step ? 1 : 0.07}
+                style={
+                  playing && index === step - 1
+                    ? {
+                        strokeDasharray: 1,
+                        animation: `stroke-reveal ${revealDuration}ms linear both`,
+                      }
+                    : undefined
+                }
+              />
+            </g>
           ))
         )}
       </svg>

@@ -182,3 +182,14 @@ Pull the immutable release with `docker pull cutano/kanji-study-web@sha256:65db5
 ## Version 0.2.3 local TTS repair — 2026-10-07
 
 Added PCM output support for the user's Gemini TTS provider, WAV playback/cache encapsulation, and redacted provider error details. The six affected production browser cases and all 132 unit/integration tests pass; see the [PCM compatibility follow-up](ai-speech.md#023-pcm-compatibility-fix--2026-10-07) for the diagnosis, upgrade instructions, and verification evidence. Unrelated browser workflows were not rerun for this focused repair. This is a locally verified source/container version, not a Docker Hub publication or an upgrade to the user's public HTTPS server.
+
+## Stroke tracing follow-up — 2026-10-07
+
+The active stroke previously reused its faint guide path for the ink reveal, hiding the entire guide at animation start. It now has a separate guide underneath the ink, with matching geometry and stroke styling. A discrete opacity animation clears the guide only when the ink reveal finishes; both use the same speed-adjusted duration. Reduced motion immediately displays the ink with the extra guide hidden.
+
+- TypeScript, production build, changed-file formatting, and whitespace checks passed.
+- Targeted production checks in Chromium and WebKit examined all eight real catalog strokes of 雨 at 0.5×, 1×, 1.5×, and 2×. At the start, midpoint, and just before completion, guide opacity remained 0.07 while the ink advanced; at completion it became zero. Future stroke guides remained visible. Replay, pause, previous/next, keyboard activation, and reduced-motion behavior also passed without page errors.
+- Inspected the [desktop light](screenshots/stroke-tracing-desktop.png) and [320px mobile dark](screenshots/stroke-tracing-mobile.png) captures halfway through the fourth stroke. The unfinished portion retains its guide, and neither layout has horizontal overflow.
+- All four existing production acceptance cases for cold offline catalog loading and offline study workflows passed across Chromium desktop and mobile WebKit, using bundled data and the production service worker. WebKit's static origin was stopped for offline verification. No permanent tests were added for this presentation refinement; unrelated unit tests were not rerun.
+
+This verifies the local production source build. Docker images and public hosting were not updated; these browser checks do not constitute physical iOS acceptance.
