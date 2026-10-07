@@ -8,6 +8,7 @@ import { resolve, extname, sep } from "node:path";
  */
 export interface OfflineHostOptions {
   directory?: string;
+  base?: string;
   responseHeaders?: Record<string, string>;
   onRequest?: (pathname: string) => void;
   transformResponse?: (
@@ -16,7 +17,10 @@ export interface OfflineHostOptions {
   ) => Buffer | Promise<Buffer>;
 }
 export async function startOfflineHost(options: OfflineHostOptions = {}) {
-  const root = resolve(options.directory ?? "dist");
+  const root = resolve(
+    options.directory ?? process.env.KANJI_TEST_DIST ?? "dist",
+  );
+  const base = options.base ?? process.env.KANJI_TEST_BASE ?? "/";
   const mime: Record<string, string> = {
     ".html": "text/html",
     ".js": "text/javascript",
@@ -33,9 +37,18 @@ export async function startOfflineHost(options: OfflineHostOptions = {}) {
       new URL(request.url || "/", "http://localhost").pathname,
     );
     options.onRequest?.(pathname);
+    if (base !== "/" && pathname === base.slice(0, -1)) {
+      response.writeHead(301, { Location: base }).end();
+      return;
+    }
+    if (!pathname.startsWith(base)) {
+      response.writeHead(404).end("Outside deployment");
+      return;
+    }
+    const localPath = `/${pathname.slice(base.length)}`;
     const path = resolve(
       root,
-      `.${pathname === "/" ? "/index.html" : pathname}`,
+      `.${localPath === "/" ? "/index.html" : localPath}`,
     );
     if (!path.startsWith(`${root}${sep}`)) {
       response.writeHead(403).end();
@@ -44,7 +57,7 @@ export async function startOfflineHost(options: OfflineHostOptions = {}) {
     try {
       const original = await readFile(path);
       const body = options.transformResponse
-        ? await options.transformResponse(pathname, original)
+        ? await options.transformResponse(localPath, original)
         : original;
       if (response.destroyed) return;
       response.writeHead(200, {
@@ -67,7 +80,7 @@ export async function startOfflineHost(options: OfflineHostOptions = {}) {
     throw new Error("Test server did not receive a port.");
   let closed = false;
   return {
-    url: `http://127.0.0.1:${address.port}`,
+    url: `http://127.0.0.1:${address.port}${base.slice(0, -1)}`,
     async close() {
       if (closed) return;
       closed = true;

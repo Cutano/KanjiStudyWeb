@@ -1,3 +1,5 @@
+import { appUrl } from "./urls";
+
 export async function prepareAppShell(): Promise<ServiceWorkerRegistration | null> {
   if (import.meta.env.DEV) return null;
   if (!("serviceWorker" in navigator) || !window.isSecureContext) {
@@ -5,7 +7,9 @@ export async function prepareAppShell(): Promise<ServiceWorkerRegistration | nul
       "Offline installation requires HTTPS or localhost and a browser with service worker support.",
     );
   }
-  const registration = await navigator.serviceWorker.register("/sw.js");
+  const registration = await navigator.serviceWorker.register(appUrl("sw.js"), {
+    scope: import.meta.env.BASE_URL,
+  });
   if (registration.active) return registration;
   const worker = registration.installing;
   if (!worker)

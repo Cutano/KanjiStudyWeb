@@ -99,7 +99,9 @@ Compatible, authorized extension content can be imported later. Locked original 
 
 ## Quick start
 
-Run commands from the repository root. The supplied database at `Resource/kanji.db` is required. The first data preparation downloads the pinned, licensed Kanji alive audio archive (about **124 MiB**).
+### GitHub Pages
+
+Open **[Kanji Study Web](https://cutano.github.io/KanjiStudyWeb/)** and initialize the offline library. Updates to `main` deploy automatically after root-hosting and Pages-path verification. Study progress stays in your browser; use backup export/import when moving between this site and a self-hosted installation. See the [Pages deployment guide](docs/deployment.md#github-pages) for build and workflow details.
 
 ### Docker
 
@@ -115,6 +117,8 @@ docker run -d --name kanji-study-web --restart unless-stopped \
 The image already contains the dictionary and audio. Docker automatically selects your host's architecture. See the [deployment guide](docs/deployment.md) for tags and updates.
 
 Or build from source:
+
+Run commands from the repository root. The supplied database at `Resource/kanji.db` is required. The first data preparation downloads the pinned, licensed Kanji alive audio archive (about **124 MiB**).
 
 With Docker and Compose installed:
 

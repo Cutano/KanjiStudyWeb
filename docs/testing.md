@@ -171,6 +171,8 @@ Measure actual full-catalog initialization, common and worst-case search, repeat
 
 ## 8. Docker and Release Gates
 
+Root and repository-path builds are separate acceptance targets. The normal suite tests the root build. Build the Pages artifact with `npm run build -- --base /KanjiStudyWeb/ --outDir .cache/pages-dist`, then run `KANJI_TEST_DIST=.cache/pages-dist KANJI_TEST_BASE=/KanjiStudyWeb/ npm run test:e2e -- tests/e2e/hosting.spec.ts tests/e2e/update.spec.ts`. The test host rejects every path outside the deployment directory. Tests check the resolved PWA scope/shortcuts/icons, license links, missing assets, path-specific cache cleanup, native audio, saved favorites, and a fresh page after the real host stops. The update scenario retains a study checkpoint; its root variant also migrates the legacy root shell cache. These browser checks do not prove physical iOS installation.
+
 - A clean locked-dependency install, type check, formatting check, required automated tests, and production build pass.
 - The content preparation script reproduces correct counts and manifest verification.
 - Docker builds without using unstaged local artifacts; the runtime serves the correct manifest, icons, Wasm, worker, and database MIME/content.

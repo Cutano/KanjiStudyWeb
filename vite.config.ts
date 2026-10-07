@@ -1,4 +1,5 @@
 import { defineConfig } from "vitest/config";
+import type { ResolvedConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { join, relative } from "node:path";
@@ -19,26 +20,44 @@ function walk(directory: string): string[] {
     });
 }
 
+let buildConfig: ResolvedConfig;
+
 export default defineConfig({
   plugins: [
     react(),
     {
       name: "offline-shell",
+      configResolved(config) {
+        if (!/^\/(?:[A-Za-z0-9_-]+\/)*$/.test(config.base)) {
+          throw new Error(
+            "Use an absolute deployment path such as / or /KanjiStudyWeb/ for --base.",
+          );
+        }
+        buildConfig = config;
+      },
       writeBundle() {
-        const files = walk("dist");
+        const {
+          base,
+          build: { outDir },
+        } = buildConfig;
+        const files = walk(outDir);
         const template = readFileSync("src/service-worker.js", "utf8");
         const version = createHash("sha256");
         version.update(template);
+        version.update(base);
         files.forEach((file) =>
           version
-            .update(relative("dist", file))
+            .update(relative(outDir, file))
             .update("\0")
             .update(readFileSync(file)),
         );
-        const urls = files.map((file) => `/${relative("dist", file)}`);
+        const urls = files.map(
+          (file) => `${base}${relative(outDir, file).split("\\").join("/")}`,
+        );
         writeFileSync(
-          "dist/sw.js",
+          join(outDir, "sw.js"),
           template
+            .replace("__APP_BASE__", JSON.stringify(base))
             .replace("__SHELL_VERSION__", version.digest("hex").slice(0, 16))
             .replace("__SHELL_ASSETS__", JSON.stringify(urls)),
         );

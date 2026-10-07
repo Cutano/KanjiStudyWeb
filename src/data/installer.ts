@@ -1,4 +1,5 @@
 import { openDB } from "idb";
+import { appUrl } from "../lib/urls";
 import type { InstallProgress } from "../domain/types";
 import {
   parseManifest,
@@ -57,7 +58,7 @@ export async function installCatalog(
   if (!update && active && (await isCatalogInstalled())) return active;
   let manifest: CatalogManifest;
   try {
-    const response = await fetch("/data/manifest.json", {
+    const response = await fetch(appUrl("data/manifest.json"), {
       cache: "no-store",
       signal,
     });
@@ -99,7 +100,7 @@ export async function installCatalog(
           ? "Downloading pronunciation audio"
           : "Downloading dictionary",
       );
-      const response = await fetch(asset.path, { signal });
+      const response = await fetch(appUrl(asset.path), { signal });
       if (!response.ok)
         throw new Error(
           `A library download failed (HTTP ${response.status}). Reconnect and retry; completed files are preserved.`,

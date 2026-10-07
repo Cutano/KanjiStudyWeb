@@ -1,18 +1,25 @@
 /* Built with a content-derived shell version. Catalog storage is managed separately. */
-const SHELL_CACHE = "kanji-shell-__SHELL_VERSION__";
+const APP_BASE = __APP_BASE__;
+const SHELL_VERSION = "__SHELL_VERSION__";
+const SHELL_CACHE_PREFIX = `kanji-shell-${encodeURIComponent(APP_BASE)}-`;
+const SHELL_CACHE = SHELL_CACHE_PREFIX + SHELL_VERSION;
 const SHELL_ASSETS = __SHELL_ASSETS__;
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches
       .open(SHELL_CACHE)
-      .then((cache) => cache.addAll(["/", ...SHELL_ASSETS])),
+      .then((cache) => cache.addAll([APP_BASE, ...SHELL_ASSETS])),
   );
 });
 self.addEventListener("activate", (event) => {
   event.waitUntil(
     (async () => {
       for (const key of await caches.keys()) {
-        if (key.startsWith("kanji-shell-") && key !== SHELL_CACHE)
+        const ownShell = key.startsWith(SHELL_CACHE_PREFIX);
+        // Upgrade legacy root installations without deleting another deployment's shell.
+        const legacyRoot =
+          APP_BASE === "/" && /^kanji-shell-[a-f0-9]{16}$/.test(key);
+        if ((ownShell || legacyRoot) && key !== SHELL_CACHE)
           await caches.delete(key);
       }
       await self.clients.claim();
@@ -27,7 +34,8 @@ self.addEventListener("fetch", (event) => {
   if (
     event.request.method !== "GET" ||
     url.origin !== self.location.origin ||
-    url.pathname.startsWith("/data/")
+    !url.pathname.startsWith(APP_BASE) ||
+    url.pathname.startsWith(`${APP_BASE}data/`)
   )
     return;
   event.respondWith(
@@ -37,7 +45,7 @@ self.addEventListener("fetch", (event) => {
         const exact = await cache.match(url.pathname, { ignoreVary: true });
         return (
           exact ||
-          (await cache.match("/index.html", { ignoreVary: true })) ||
+          (await cache.match(`${APP_BASE}index.html`, { ignoreVary: true })) ||
           fetch(event.request)
         );
       }

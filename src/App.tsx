@@ -21,6 +21,7 @@ import { initializeProfile } from "./state/profile";
 import { prepareAppShell, requestDurableStorage } from "./lib/pwa";
 import { ErrorNotice, Loading, Modal } from "./components/common";
 import { Workspace } from "./app/Workspace";
+import { appUrl } from "./lib/urls";
 
 interface InstallPromptEvent extends Event {
   prompt(): Promise<void>;
@@ -92,7 +93,7 @@ export default function App() {
       ) : (
         <div className="welcome">
           <a href="#" className="brand">
-            <img src="/icon.svg" alt="" />
+            <img src={appUrl("icon.svg")} alt="" />
             <span>
               kanji<span className="brand-weight">study</span>
               <small>WEB</small>

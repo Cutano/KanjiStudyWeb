@@ -24,6 +24,7 @@ import type {
 } from "../domain/types";
 import { useProfile } from "../state/useProfile";
 import { useHashRoute } from "../lib/hooks";
+import { appUrl } from "../lib/urls";
 import { Home, StudyHub } from "../features/Home";
 import { Library } from "../features/Library";
 import { CharacterDetails, WordDetails } from "../features/Details";
@@ -204,7 +205,7 @@ export function Workspace({ onInstall }: { onInstall: () => void }) {
         className={`sidebar ${mobileMenu ? "is-open" : ""}`}
       >
         <a href="#home" className="brand" onClick={() => setSession(undefined)}>
-          <img src="/icon.svg" alt="" />
+          <img src={appUrl("icon.svg")} alt="" />
           <span>
             kanji<span className="brand-weight">study</span>
             <small>WEB</small>

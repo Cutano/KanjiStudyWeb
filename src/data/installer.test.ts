@@ -1,5 +1,5 @@
 import "fake-indexeddb/auto";
-import { beforeEach, describe, expect, it, vi } from "vitest";
+import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createHash } from "node:crypto";
 import { openDB } from "idb";
 import {
@@ -7,6 +7,7 @@ import {
   installedManifest,
   isCatalogInstalled,
   removeInstalledCatalog,
+  readInstalledAsset,
 } from "./installer";
 import type { CatalogAsset, CatalogManifest } from "./manifest";
 
@@ -47,6 +48,7 @@ function network() {
   });
 }
 beforeEach(async () => {
+  vi.stubEnv("BASE_URL", "/");
   cached.clear();
   files = new Map();
   vi.stubGlobal("navigator", { storage: { persist: async () => true } });
@@ -77,8 +79,36 @@ beforeEach(async () => {
   };
   vi.stubGlobal("fetch", network());
 });
+afterEach(() => vi.unstubAllEnvs());
 
 describe("offline installation transactions", () => {
+  it("downloads from the deployment base while retaining portable catalog identities and cached bytes", async () => {
+    vi.stubEnv("BASE_URL", "/KanjiStudyWeb/");
+    const server = network();
+    const requests: string[] = [];
+    vi.stubGlobal(
+      "fetch",
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        requests.push(url);
+        if (!url.startsWith("/KanjiStudyWeb/"))
+          return new Response(null, { status: 404 });
+        return server(url.slice("/KanjiStudyWeb".length));
+      }),
+    );
+    await installCatalog();
+    expect(requests).toEqual([
+      "/KanjiStudyWeb/data/manifest.json",
+      ...manifest.assets.map((asset) => `/KanjiStudyWeb${asset.path}`),
+    ]);
+    expect(await installedManifest()).toEqual(manifest);
+    vi.stubGlobal("fetch", vi.fn().mockRejectedValue(new Error("offline")));
+    expect(await isCatalogInstalled()).toBe(true);
+    expect(await (await readInstalledAsset(manifest.catalogPath)).text()).toBe(
+      "reference-catalog",
+    );
+    expect(await installCatalog()).toEqual(manifest);
+  });
   it("activates only verified assets and does not use network on an installed launch", async () => {
     const progress = vi.fn();
     await installCatalog(progress);

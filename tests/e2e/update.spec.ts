@@ -40,11 +40,26 @@ test("a second shell release waits for study exit and preserves its checkpoint o
             ),
         );
       }
-      if (pathname === "/sw.js" && release === "B") {
+      if (pathname === "/sw.js") {
+        // Root release A uses the pre-Pages cache name to cover existing installs.
+        if (release === "A" && !process.env.KANJI_TEST_BASE) {
+          return Buffer.from(
+            body
+              .toString()
+              .replace(
+                "const SHELL_CACHE = SHELL_CACHE_PREFIX + SHELL_VERSION;",
+                'const SHELL_CACHE = "kanji-shell-" + SHELL_VERSION;',
+              ),
+          );
+        }
+        if (release !== "B") return body;
         return Buffer.from(
           body
             .toString()
-            .replace(/kanji-shell-([a-z0-9]+)/, "kanji-shell-$1-release-b"),
+            .replace(
+              /const SHELL_VERSION = "([^"]+)";/,
+              'const SHELL_VERSION = "$1-release-b";',
+            ),
         );
       }
       return body;

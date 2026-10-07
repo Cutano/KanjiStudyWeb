@@ -27,6 +27,7 @@ import { SYSTEMS } from "../lib/constants";
 import { useAsync } from "../lib/hooks";
 import { ErrorNotice } from "../components/common";
 import { catalog } from "../data/catalog";
+import { appUrl } from "../lib/urls";
 import { requestDurableStorage } from "../lib/pwa";
 import { TtsSettings } from "./TtsSettings";
 
@@ -558,21 +559,21 @@ export function Settings({ onInstall }: { onInstall: () => void }) {
           </p>
           <div className="button-group wrap">
             <a
-              href="/licenses/LGPL-3.0.txt"
+              href={appUrl("licenses/LGPL-3.0.txt")}
               className="text-button"
               target="_blank"
             >
               Code license
             </a>
             <a
-              href="/licenses/THIRD-PARTY-NOTICES.txt"
+              href={appUrl("licenses/THIRD-PARTY-NOTICES.txt")}
               className="text-button"
               target="_blank"
             >
               Offline data notices
             </a>
             <a
-              href="/licenses/DEPENDENCY-LICENSES.txt"
+              href={appUrl("licenses/DEPENDENCY-LICENSES.txt")}
               className="text-button"
               target="_blank"
             >

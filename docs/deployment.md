@@ -4,7 +4,30 @@
 
 Kanji Study Web has no application backend. The production server delivers HTML, scripts, styles, a compressed catalog, and audio packs. Study history, sets, customizations, and imported extensions are stored in the user's browser installation. A container restart or replacement does not delete that browser data.
 
-The application is currently configured for the root of an origin, for example `https://kanji.example.com/`. Use a dedicated hostname; subdirectory hosting requires coordinated changes to asset URLs, manifest scope, service worker scope, and routing.
+The default build serves the root of an origin, for example `https://kanji.example.com/`, and remains the Docker configuration. A Vite `--base` path also supports repository hosting at `https://cutano.github.io/KanjiStudyWeb/`. The build applies that path to application assets, catalog downloads, icons, license links, and the service worker. The PWA manifest resolves its start URL, scope, icons, and shortcuts relative to its own directory. Navigation uses hash routes in both deployments.
+
+## GitHub Pages
+
+The default public address is [cutano.github.io/KanjiStudyWeb](https://cutano.github.io/KanjiStudyWeb/). In the repository's **Settings → Pages**, select **GitHub Actions** as the build source. The `Verify` workflow verifies the root build, builds the repository-prefixed site, exercises its offline installation and update behavior in Chromium and WebKit, and uploads the Pages artifact. A separate deployment job publishes only after all checks pass on `main`; pull requests verify both builds without publishing. The workflow also supports manual dispatch.
+
+The Pages build uses Node 24 and these commands after `npm ci`:
+
+```sh
+npm run data:prepare
+node scripts/prepare-licenses.mjs
+npm run build -- --base /KanjiStudyWeb/ --outDir .cache/pages-dist
+```
+
+The workflow derives the prefix from the repository name. Generated data and bundles remain ignored by Git; only the built artifact is uploaded. For a local production check of the repository path:
+
+```sh
+KANJI_TEST_DIST=.cache/pages-dist KANJI_TEST_BASE=/KanjiStudyWeb/ \
+  npm run test:e2e -- tests/e2e/hosting.spec.ts tests/e2e/update.spec.ts
+```
+
+Pages serves static files over HTTPS without running the Docker image or Nginx. Its platform controls response headers and cache policy, so the Nginx-specific CSP, health endpoint, and cache-header checks below apply to self-hosting. Hash links such as `/KanjiStudyWeb/#library` work without server-side navigation rewrites. Resource installation still verifies every required file before activating the catalog. [Vite Pages deployment](https://vite.dev/guide/static-deploy.html#github-pages), [GitHub Pages limits](https://docs.github.com/en/pages/getting-started-with-github-pages/github-pages-limits).
+
+Shell cache names include the deployment path; activation cleans only that path's older shells. Root builds additionally retire the previous root-only shell cache names. Catalog manifests and audio indexes retain their canonical `/data/...` identities and hashes; only network requests receive the deployment prefix. Existing catalog cache keys and all personal-storage schemas remain compatible. Browser storage is origin-bound: moving between a self-hosted hostname and GitHub Pages requires exporting and importing a profile backup.
 
 ## Build and Run with Docker
 
