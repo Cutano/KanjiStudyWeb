@@ -85,6 +85,7 @@ export interface Vocabulary {
   meaningsTemplate: string;
   tags: string;
   isCommon: boolean;
+  isUsuallyKana: boolean;
   jlptLevel: number;
   audio: string;
 }
@@ -92,6 +93,16 @@ export interface Sentence {
   id: number;
   text: string;
   translation: string;
+}
+export interface SentenceDetail extends Sentence {
+  characters: CharacterSummary[];
+  vocabulary: {
+    word: Vocabulary;
+    /** Unicode code-point offsets in plainSentence(text), without annotations/separators. */
+    start: number;
+    length: number;
+    text: string;
+  }[];
 }
 export interface ProperName {
   id: number;

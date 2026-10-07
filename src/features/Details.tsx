@@ -16,9 +16,9 @@ import type {
 import { catalog } from "../data/catalog";
 import {
   cleanReading,
+  dictionaryTagLabel,
   parseVocabularyForms,
   vocabularyLabel,
-  vocabularyMeaning,
 } from "../data/text";
 import { useAsync } from "../lib/hooks";
 import { RATING_LABELS, SYSTEMS, levelLabel } from "../lib/constants";
@@ -32,12 +32,14 @@ import {
   Empty,
   ErrorNotice,
   FavoriteButton,
-  JapaneseSentence,
   Loading,
   Modal,
   WordRow,
 } from "../components/common";
 import { StrokeDiagram } from "../components/StrokeDiagram";
+import { VocabularyMeanings } from "../components/VocabularyMeanings";
+import { PitchDiagram } from "../components/PitchDiagram";
+import { SentenceRow } from "../components/SentenceRow";
 
 interface Props {
   characterKey: CharacterKey;
@@ -447,18 +449,7 @@ export function CharacterDetails({ characterKey, onStudy, onAddToSet }: Props) {
           words.data?.items.map((word) => <WordRow key={word.id} word={word} />)
         ) : tab === "sentences" ? (
           sentences.data?.items.map((sentence) => (
-            <article className="sentence-row" key={sentence.id}>
-              <div>
-                <p className="japanese-text">
-                  <JapaneseSentence
-                    text={sentence.text}
-                    furigana={profile.settings.showFurigana}
-                  />
-                </p>
-                <p className="muted">{sentence.translation}</p>
-              </div>
-              <FavoriteButton id={`sentence:${sentence.id}`} />
-            </article>
+            <SentenceRow key={sentence.id} sentence={sentence} />
           ))
         ) : (
           names.data?.items.map((name) => (
@@ -598,21 +589,6 @@ export function WordDetails({ id }: { id: number }) {
         )}
       </div>
       <section className="detail-section">
-        <h2>Meaning & usage</h2>
-        <p className="definition">{vocabularyMeaning(word)}</p>
-        {word.entry.includes("|") && (
-          <p className="muted">
-            Also written: {word.entry.split("|").slice(1).join(" · ")}
-          </p>
-        )}
-        <p className="muted small-text">
-          {word.tags
-            .split(" ")
-            .filter((tag) => !/^[pck]\d+$/.test(tag))
-            .join(" · ")}
-        </p>
-      </section>
-      <section className="detail-section">
         <h2>Forms & readings</h2>
         <div className="vocabulary-forms">
           {parseVocabularyForms(word).map((form, index) => (
@@ -629,14 +605,51 @@ export function WordDetails({ id }: { id: number }) {
                   ),
                 )}
               </p>
-              <p className="muted">{form.readings.join(" · ")}</p>
-              {form.pitchAccents.length > 0 && (
-                <span className="tag">
-                  Accent: {form.pitchAccents.join(" / ")}
-                </span>
+              {form.flags.length > 0 && (
+                <p className="form-flags">
+                  {form.flags.map(dictionaryTagLabel).join(" · ")}
+                </p>
               )}
+              <div className="form-pronunciations">
+                {form.readingDetails.map((reading, readingIndex) => (
+                  <div className="form-pronunciation" key={readingIndex}>
+                    <p className="muted" lang="ja">
+                      {reading.text}
+                    </p>
+                    {reading.flags.some(
+                      (flag) => !form.flags.includes(flag),
+                    ) && (
+                      <p className="form-flags">
+                        {reading.flags
+                          .filter((flag) => !form.flags.includes(flag))
+                          .map(dictionaryTagLabel)
+                          .join(" · ")}
+                      </p>
+                    )}
+                    <div className="pitch-patterns">
+                      {reading.pitchAccents.map((accent) => (
+                        <PitchDiagram
+                          key={accent}
+                          reading={reading.text}
+                          accent={accent}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
             </article>
           ))}
+        </div>
+        <p className="pitch-help">
+          Dots follow each spoken mora. The hollow dot shows the pitch of a
+          following particle.
+        </p>
+      </section>
+      <section className="detail-section">
+        <h2>Meaning & usage</h2>
+        <div className="definition">
+          <VocabularyMeanings word={word} />
         </div>
       </section>
       {word.characters.length > 0 && (
@@ -653,18 +666,7 @@ export function WordDetails({ id }: { id: number }) {
         <section className="detail-section">
           <h2>In context</h2>
           {word.sentences.map((sentence) => (
-            <article className="sentence-row" key={sentence.id}>
-              <div>
-                <p className="japanese-text">
-                  <JapaneseSentence
-                    text={sentence.text}
-                    furigana={profile.settings.showFurigana}
-                  />
-                </p>
-                <p className="muted">{sentence.translation}</p>
-              </div>
-              <FavoriteButton id={`sentence:${sentence.id}`} />
-            </article>
+            <SentenceRow key={sentence.id} sentence={sentence} />
           ))}
         </section>
       )}

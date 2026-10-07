@@ -195,6 +195,14 @@ export function Reading() {
                       {read ? <Check size={16} /> : <BookOpen size={16} />}
                       {read ? "Read" : "Mark as read"}
                     </button>
+                    {source === "catalog" && (
+                      <a
+                        className="text-button"
+                        href={`#sentence/${sentence.id.slice("sentence:".length)}`}
+                      >
+                        Open sentence
+                      </a>
+                    )}
                     <div className="button-group">
                       <DeviceVoiceButton text={plainSentence(sentence.text)} />
                       {source === "catalog" && (

@@ -9,12 +9,8 @@ import {
 } from "lucide-react";
 import type { CharacterSummary, Vocabulary } from "../domain/types";
 import { catalog } from "../data/catalog";
-import {
-  cleanReading,
-  parseSentence,
-  vocabularyLabel,
-  vocabularyMeaning,
-} from "../data/text";
+import { cleanReading, parseSentence, vocabularyLabel } from "../data/text";
+import { VocabularyMeanings } from "./VocabularyMeanings";
 import { updateProfile } from "../state/profile";
 import { useProfile } from "../state/useProfile";
 import { speakJapanese } from "../lib/speech";
@@ -262,7 +258,7 @@ export function WordRow({ word }: { word: Vocabulary }) {
         <span lang="ja" className="muted">
           {word.readings.split(";")[0]}
         </span>
-        <p>{vocabularyMeaning(word)}</p>
+        <VocabularyMeanings word={word} compact />
       </div>
       <div className="word-actions">
         {word.isCommon && <span className="badge">Common</span>}

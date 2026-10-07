@@ -29,11 +29,13 @@ import { Library } from "../features/Library";
 import { CharacterDetails, WordDetails } from "../features/Details";
 import { SetDetails, SetPicker, Sets, Favorites } from "../features/Sets";
 import { Reading } from "../features/Reading";
+import { SentenceDetails } from "../features/SentenceDetails";
 import { Progress } from "../features/Progress";
 import { Settings } from "../features/Settings";
 import { StudySetup } from "../features/study/StudySetup";
 import { StudySession } from "../features/study/StudySession";
 import "../features/study/study.css";
+import "../features/dictionary.css";
 
 const NAV = [
   { id: "home", label: "Overview", icon: HomeIcon },
@@ -154,6 +156,10 @@ export function Workspace({ onInstall }: { onInstall: () => void }) {
     );
   else if (section === "word")
     content = <WordDetails key={route} id={+route.slice("word/".length)} />;
+  else if (section === "sentence")
+    content = (
+      <SentenceDetails key={route} id={+route.slice("sentence/".length)} />
+    );
   else if (section === "set")
     content = (
       <SetDetails key={route} id={route.slice("set/".length)} {...props} />
@@ -211,7 +217,7 @@ export function Workspace({ onInstall }: { onInstall: () => void }) {
               className={
                 section === item.id ||
                 (item.id === "library" &&
-                  ["character", "word"].includes(section)) ||
+                  ["character", "word", "sentence"].includes(section)) ||
                 (item.id === "sets" && ["set", "favorites"].includes(section))
                   ? "active"
                   : ""
@@ -274,6 +280,7 @@ export function Workspace({ onInstall }: { onInstall: () => void }) {
                   {
                     character: "Character",
                     word: "Dictionary",
+                    sentence: "Example sentence",
                     set: "Collection",
                     favorites: "Favorites",
                     settings: "Settings",

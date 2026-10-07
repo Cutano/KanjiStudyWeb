@@ -1,3 +1,12 @@
+export { dictionaryTagLabel } from "./dictionary-tags";
+export {
+  parseVocabularySenses,
+  type VocabularySense,
+  type VocabularyGloss,
+  type VocabularySenseContent,
+} from "./senses";
+export { pitchMorae, type PitchPattern } from "./pitch";
+
 /** The catalog's reading markers remain in raw fields; only presentation removes them. */
 export function cleanReading(text: string): string {
   return text.replace(/[!*]/g, "").replaceAll(",", "、");
@@ -5,7 +14,14 @@ export function cleanReading(text: string): string {
 export function vocabularyLabel(word: {
   entry: string;
   readings: string;
+  entryTemplate?: string;
+  isUsuallyKana?: boolean;
 }): string {
+  const header = word.entryTemplate?.split(/[|;:]/)[0].split(",")[0];
+  const reference = header && /^\[(\d+)\]$/.exec(header);
+  if (reference) return word.entry.split("|")[Number(reference[1]) - 1];
+  if (header) return header;
+  if (word.isUsuallyKana) return word.readings.split(";")[0].split(",")[0];
   return (
     word.entry.split("|")[0] || word.readings.split(";")[0].split(",")[0] || ""
   );
@@ -76,6 +92,12 @@ export interface VocabularyForm {
   readings: string[];
   pitchAccents: number[];
   flags: string[];
+  readingDetails: {
+    text: string;
+    segments: RubySegment[];
+    pitchAccents: number[];
+    flags: string[];
+  }[];
 }
 interface FormReading {
   text: string;
@@ -152,12 +174,14 @@ export function parseVocabularyForms(word: {
       pitchAccents: [
         ...new Set(readings.flatMap((reading) => reading.pitchAccents)),
       ],
-      flags: [
-        ...new Set([
-          ...flags.filter((flag) => !/^\d+$/.test(flag)),
-          ...readings.flatMap((reading) => reading.flags),
-        ]),
-      ],
+      flags: [...new Set(flags.filter((flag) => !/^\d+$/.test(flag)))],
+      readingDetails: readings.map((reading) => ({
+        text: reading.text,
+        segments:
+          ordinal && variants.length ? alignForm(text, reading) : [{ text }],
+        pitchAccents: reading.pitchAccents,
+        flags: reading.flags,
+      })),
     });
   }
   if (forms.length) return forms;
@@ -170,6 +194,14 @@ export function parseVocabularyForms(word: {
       readings: [reading],
       pitchAccents: [],
       flags: [],
+      readingDetails: [
+        {
+          text: reading,
+          segments: text === reading ? [{ text }] : [{ text, reading }],
+          pitchAccents: [],
+          flags: [],
+        },
+      ],
     },
   ];
 }

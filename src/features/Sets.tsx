@@ -1,3 +1,4 @@
+import { SentenceRow } from "../components/SentenceRow";
 import { useState } from "react";
 import { ArrowRight, Plus } from "lucide-react";
 import type { CharacterKey, CharacterSummary } from "../domain/types";
@@ -9,8 +10,6 @@ import {
   CharacterCard,
   Empty,
   ErrorNotice,
-  FavoriteButton,
-  JapaneseSentence,
   Loading,
   WordRow,
 } from "../components/common";
@@ -205,18 +204,7 @@ export function Favorites({ onStudy, onAddToSet }: SetProps) {
         <Loading />
       ) : sentences.data?.length ? (
         sentences.data.map((sentence) => (
-          <article className="sentence-row" key={sentence.id}>
-            <div>
-              <p className="japanese-text">
-                <JapaneseSentence
-                  text={sentence.text}
-                  furigana={profile.settings.showFurigana}
-                />
-              </p>
-              <p className="muted">{sentence.translation}</p>
-            </div>
-            <FavoriteButton id={`sentence:${sentence.id}`} />
-          </article>
+          <SentenceRow key={sentence.id} sentence={sentence} />
         ))
       ) : (
         <Empty title="Keep a little context">

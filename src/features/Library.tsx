@@ -298,6 +298,12 @@ export function Library({
             </>
           )}
         </p>
+        {kind === "words" && (
+          <p>
+            Exact Japanese matches come first, followed by JLPT N5–N1, the
+            number of available example sentences, and common words.
+          </p>
+        )}
       </details>
       {kind === "kanji" && (
         <div className="library-controls">

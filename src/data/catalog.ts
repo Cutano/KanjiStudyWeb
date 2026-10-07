@@ -196,6 +196,9 @@ class Catalog {
   getSentence(id: number) {
     return this.query("getSentence", [id]);
   }
+  getSentenceDetail(id: number) {
+    return this.query("getSentenceDetail", [id]);
+  }
   getCharacterVocabulary(key: CharacterKey, options?: PageOptions) {
     return this.query("getCharacterVocabulary", [key, options]);
   }

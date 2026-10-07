@@ -8,11 +8,12 @@ import type {
   Page,
   ProperName,
   Sentence,
+  SentenceDetail,
   SequenceSystem,
   Vocabulary,
   VocabularyDetail,
 } from "../domain/types";
-import { plainSentence } from "./text";
+import { plainSentence, vocabularyLabel } from "./text";
 import { parseSearch, type SearchFilter, type SearchTerm } from "./search";
 
 export const SEQUENCE_SYSTEMS: SequenceSystem[] = [
@@ -51,6 +52,19 @@ const katakana = (value: string) =>
   value.replace(/[ぁ-ゖ]/g, (character) =>
     String.fromCodePoint(character.codePointAt(0)! + 0x60),
   );
+function charactersInTextOrder(
+  characters: CharacterSummary[],
+  source: string,
+): CharacterSummary[] {
+  const glyphs = Array.from(source);
+  const position = (glyph: string) => {
+    const index = glyphs.indexOf(glyph);
+    return index === -1 ? glyphs.length : index;
+  };
+  return characters.sort(
+    (left, right) => position(left.glyph) - position(right.glyph),
+  );
+}
 function textCondition(
   term: SearchTerm,
   columns: string[],
@@ -310,6 +324,7 @@ export class CatalogRepository {
       meaningsTemplate: text(row.meanings_template),
       tags: text(row.tags),
       isCommon: Boolean(row.is_common),
+      isUsuallyKana: Boolean(row.is_usually_kana),
       jlptLevel: number(row.jlpt_level),
       audio: text(row.audio),
     };
@@ -318,16 +333,35 @@ export class CatalogRepository {
     where: string,
     parameters: SqlValue[],
     options: PageOptions = {},
+    exactTerms: string[] = [],
   ): Page<Vocabulary> {
     const { offset, limit } = bounds(options);
+    const forms = [
+      ...new Set(
+        exactTerms.flatMap((term) => [term, hiragana(term), katakana(term)]),
+      ),
+    ];
+    const exact = forms
+      .map(
+        () =>
+          "(INSTR('|' || e.entry || '|', ?) > 0 OR INSTR(',' || LOWER(REPLACE(e.readings, ';', ',')) || ',', ?) > 0)",
+      )
+      .join(" OR ");
+    const rankParameters = forms.flatMap((term) => [
+      `|${term}|`,
+      `,${term.toLowerCase()},`,
+    ]);
     return {
       total: this.scalar(
         `SELECT COUNT(*) FROM dict_entry e WHERE ${where}`,
         parameters,
       ),
       items: this.rows(
-        `SELECT e.* FROM dict_entry e WHERE ${where} ORDER BY e.is_common DESC, e.id LIMIT ? OFFSET ?`,
-        [...parameters, limit, offset],
+        `SELECT e.* FROM dict_entry e WHERE ${where}
+         ORDER BY ${exact ? `CASE WHEN ${exact} THEN 0 ELSE 1 END,` : ""} e.jlpt_level DESC,
+           (SELECT COUNT(DISTINCT l.sentence_id) FROM sentence_vocab_link l WHERE l.vocab_id=e.id) DESC,
+           e.is_common DESC, e.readings, e.id LIMIT ? OFFSET ?`,
+        [...parameters, ...rankParameters, limit, offset],
       ).map((row) => this.vocabulary(row)),
     };
   }
@@ -364,6 +398,9 @@ export class CatalogRepository {
       conditions.length ? conditions.join(" AND ") : "1",
       parameters,
       options,
+      search.terms
+        .filter((term) => !term.excluded && !term.meaningOnly)
+        .map((term) => term.text),
     );
   }
 
@@ -384,12 +421,20 @@ export class CatalogRepository {
     const row = this.rows("SELECT * FROM dict_entry WHERE id=?", [id])[0];
     if (!row)
       throw new Error("This vocabulary entry is not in the installed catalog.");
+    const word = this.vocabulary(row);
+    const preferred = vocabularyLabel(word);
+    const writtenForm = /\p{Script=Han}/u.test(preferred)
+      ? preferred
+      : word.entry.split("|")[0];
     return {
-      ...this.vocabulary(row),
-      characters: this.rows(
-        "SELECT DISTINCT k.* FROM kanji k JOIN dict_entry_kanji l ON l.kanji_code=k.code WHERE l.entry_id=? ORDER BY k.sequence",
-        [id],
-      ).map((kanji) => this.summary(kanji, "kanji")),
+      ...word,
+      characters: charactersInTextOrder(
+        this.rows(
+          "SELECT DISTINCT k.* FROM kanji k JOIN dict_entry_kanji l ON l.kanji_code=k.code WHERE l.entry_id=? ORDER BY k.sequence",
+          [id],
+        ).map((kanji) => this.summary(kanji, "kanji")),
+        writtenForm,
+      ),
       sentences: this.rows(
         "SELECT DISTINCT s.* FROM sentence s JOIN sentence_vocab_link l ON l.sentence_id=s.id WHERE l.vocab_id=? ORDER BY s.id",
         [id],
@@ -411,6 +456,31 @@ export class CatalogRepository {
     const row = this.rows("SELECT * FROM sentence WHERE id=?", [id])[0];
     if (!row) throw new Error("This sentence is not in the installed catalog.");
     return this.sentence(row);
+  }
+  getSentenceDetail(id: number): SentenceDetail {
+    const sentence = this.getSentence(id);
+    const characters = charactersInTextOrder(
+      this.rows(
+        "SELECT DISTINCT k.* FROM kanji k JOIN sentence_link l ON l.kanji_code=k.code WHERE l.sentence_id=? ORDER BY k.sequence",
+        [id],
+      ).map((character) => this.summary(character, "kanji")),
+      plainSentence(sentence.text),
+    );
+    const plain = Array.from(plainSentence(sentence.text));
+    const vocabulary = this.rows(
+      "SELECT e.*, l.start_index, l.length FROM sentence_vocab_link l JOIN dict_entry e ON e.id=l.vocab_id WHERE l.sentence_id=? ORDER BY l.start_index, l.length DESC, e.id",
+      [id],
+    ).map((row) => {
+      const start = number(row.start_index),
+        length = number(row.length);
+      return {
+        word: this.vocabulary(row),
+        start,
+        length,
+        text: plain.slice(start, start + length).join(""),
+      };
+    });
+    return { ...sentence, characters, vocabulary };
   }
   getCharacterSentences(
     key: CharacterKey,
