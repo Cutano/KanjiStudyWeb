@@ -88,7 +88,8 @@ export function StrokeDiagram({
                 style={
                   playing && index === step - 1
                     ? {
-                        strokeDasharray: 1,
+                        // Keep the repeated dash's round cap beyond the path end.
+                        strokeDasharray: "1 2",
                         animation: `stroke-reveal ${revealDuration}ms linear both`,
                       }
                     : undefined

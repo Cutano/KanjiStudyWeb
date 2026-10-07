@@ -193,3 +193,14 @@ The active stroke previously reused its faint guide path for the ink reveal, hid
 - All four existing production acceptance cases for cold offline catalog loading and offline study workflows passed across Chromium desktop and mobile WebKit, using bundled data and the production service worker. WebKit's static origin was stopped for offline verification. No permanent tests were added for this presentation refinement; unrelated unit tests were not rerun.
 
 This verifies the local production source build. Docker images and public hosting were not updated; these browser checks do not constitute physical iOS acceptance.
+
+## Stroke endpoint flash follow-up — 2026-10-07
+
+The user's recording and screenshot exposed a rendering issue missed by the preceding computed-style checks. With normalized `pathLength="1"`, the implicit `1 1` dash pattern placed the next dash's round cap at the stroke endpoint as the reveal began. Chromium painted this as a brief bright dot. The reveal now uses `1 2`, keeping the repeated dash outside the path while retaining the same ink length, duration, round tips, and guide behavior.
+
+- Reproduced the flash on the third real catalog stroke of 雨 in Chromium: the endpoint pixel already matched fully drawn ink at 0 and 0.75ms, then returned to the guide shade. WebKit did not reproduce this artifact. Inspected the reproduced [before](screenshots/stroke-start-before.png) and corrected [after](screenshots/stroke-start-after.png) start frames.
+- After the fix, endpoint pixels matched the guide within two channel levels at 0, 0.75, 7.5, 187.5, and 375ms, then matched completed ink at 750ms in both engines. This validates painted output rather than only the animation's declared styles.
+- All eight strokes at all four speeds still passed guide/reveal timing checks in Chromium and WebKit. Replay, pause, previous/next, keyboard activation, reduced motion, and desktop/320px layouts passed without page errors.
+- TypeScript, production build, changed-file formatting, and whitespace checks passed. The four existing cold offline catalog and offline study cases passed again across Chromium and mobile WebKit with real data and the production service worker; WebKit's origin was stopped. No new permanent tests or unrelated unit runs were added for this rendering correction.
+
+Updated the open local test page through its normal app-update control and verified that it loaded `index-BwTiegal.js`. Docker images and public hosting remain unchanged; physical-device acceptance was not repeated.
