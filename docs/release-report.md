@@ -204,3 +204,18 @@ The user's recording and screenshot exposed a rendering issue missed by the prec
 - TypeScript, production build, changed-file formatting, and whitespace checks passed. The four existing cold offline catalog and offline study cases passed again across Chromium and mobile WebKit with real data and the production service worker; WebKit's origin was stopped. No new permanent tests or unrelated unit runs were added for this rendering correction.
 
 Updated the open local test page through its normal app-update control and verified that it loaded `index-BwTiegal.js`. Docker images and public hosting remain unchanged; physical-device acceptance was not repeated.
+
+## Version 0.2.3 release — 2026-10-07
+
+Released PCM-to-WAV AI speech playback/cache support, bounded and redacted provider errors, persistent stroke guides during tracing, and the correction for the bright endpoint flash at stroke start. The package version is 0.2.3, and README/deployment examples now reference the published image. Catalog version remains `18993e9136e118e785b8`; no new catalog or profile migration is introduced by this release.
+
+Git tag [`v0.2.3`](https://github.com/Cutano/KanjiStudyWeb/tree/v0.2.3) identifies source revision `dfd57289fa950603836ed0f3d8ebaa76894ecf34`. Both the tag and `main` were pushed to GitHub. Docker Hub tags `0.2.3`, `sha-dfd5728`, and `latest` identify the same verified multi-platform index, `sha256:c1030b2aad2188eb461490b865517b5bc04e5226469f443bb401fdeeeef45547`.
+
+- Release verification passed TypeScript, all **132 unit/integration tests**, the production build, full formatting, and whitespace checks. All **34 production Playwright cases** passed without retries: 17 Chromium desktop and 17 mobile WebKit cases, including PCM-only providers, cached audio playback, accessibility, full-catalog offline reload, interrupted installation, and checkpoint preservation through a shell update. The focused stroke pixel/timing verification is recorded above and uses the same production entry asset, `index-BwTiegal.js`.
+- Both `linux/amd64` and `linux/arm64` images passed static-host checks, byte-length/SHA-256 verification of all nine content assets, and OCI version/source-revision checks. The pinned Dockerfile retains serialized access to its shared catalog-generation cache.
+- Chromium and WebKit initialized the actual arm64 container, saved a favorite, and reopened fresh pages with the container stopped. Cold offline routing, favorite persistence, and native audio decoding passed without page errors. The arm64 container reached healthy status; the amd64 health command passed under Docker Desktop emulation on the arm64 host.
+- Registry inspection verified both architectures, two build provenance attestations, and identical release digests for all three tags. Anonymous Docker Hub access confirmed the repository remains public. The published digest matches the locally tested image; no rebuild occurred between verification and publication.
+
+Pull the fixed version with `docker pull cutano/kanji-study-web:0.2.3`, or pin the immutable image using `cutano/kanji-study-web@sha256:c1030b2aad2188eb461490b865517b5bc04e5226469f443bb401fdeeeef45547`.
+
+This publication updates GitHub and Docker Hub. It does not replace a user's running local or public HTTPS container; operators must pull and recreate that deployment. Physical Android/iOS acceptance was not repeated for this release.

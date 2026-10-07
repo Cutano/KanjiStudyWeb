@@ -76,7 +76,7 @@ The [OpenRouter TTS guide](https://openrouter.ai/docs/guides/overview/multimodal
 - Added an explicitly saved MP3/PCM selector. For the reported configuration, keep the endpoint, model, voice, and key, choose **PCM · Gemini TTS**, and save.
 - Added local PCM-to-WAV encapsulation for browser decoding and persistent offline playback. The 10-clip/50 MB limits include the WAV container bytes. PCM and MP3 cache entries remain separate; all existing MP3 settings and cache keys remain usable without a database upgrade.
 - Added bounded, redacted provider JSON messages to HTTP errors. A failed request is never cached or retried automatically. Long notices are positioned inside the viewport, including sentence actions near the left edge on mobile.
-- Package version is 0.2.3. This follow-up describes a local source/container repair; public Docker Hub tags and the user's HTTPS deployment are not updated by this change. The deployed app must receive the rebuilt image before the new format control is available. Study progress, the installed catalog, and existing TTS credentials remain in their existing stores.
+- Package version is 0.2.3. Initial verification covered a local source/container repair; the complete [0.2.3 release](release-report.md#version-023-release--2026-10-07), including subsequent stroke playback fixes, is now published to GitHub and Docker Hub. The user's HTTPS deployment must pull and recreate its container before the new format control is available. Study progress, the installed catalog, and existing TTS credentials remain in their existing stores.
 
 ### Verification
 
