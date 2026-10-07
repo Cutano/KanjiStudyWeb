@@ -1371,6 +1371,15 @@ rt {
   gap: 8px;
   flex-shrink: 0;
 }
+.word-tags,
+.word-buttons {
+  display: flex;
+  align-items: center;
+  gap: inherit;
+}
+.word-buttons {
+  flex-shrink: 0;
+}
 .detail-layout {
   display: grid;
   grid-template-columns: 275px 1fr;
@@ -2924,6 +2933,11 @@ rt {
     font-size: 34px;
   }
   .word-actions {
+    flex-direction: column;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .word-tags {
     flex-wrap: wrap;
     justify-content: flex-end;
     max-width: 100px;
@@ -3445,8 +3459,10 @@ rt {
   .word-main > span {
     font-size: 11px;
   }
-  .word-actions {
+  .word-tags {
     max-width: 80px;
+  }
+  .word-actions {
     gap: 5px;
   }
   .word-actions .badge {

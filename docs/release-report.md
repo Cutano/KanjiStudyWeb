@@ -219,3 +219,13 @@ Git tag [`v0.2.3`](https://github.com/Cutano/KanjiStudyWeb/tree/v0.2.3) identifi
 Pull the fixed version with `docker pull cutano/kanji-study-web:0.2.3`, or pin the immutable image using `cutano/kanji-study-web@sha256:c1030b2aad2188eb461490b865517b5bc04e5226469f443bb401fdeeeef45547`.
 
 This publication updates GitHub and Docker Hub. It does not replace a user's running local or public HTTPS container; operators must pull and recreate that deployment. Physical Android/iOS acceptance was not repeated for this release.
+
+## Word action layout follow-up — 2026-10-07
+
+The reported うぬぼれ results mixed horizontal and vertical playback/favorite controls because Common, JLPT, and both buttons shared one wrapping flex container. Added separate metadata and button groups to the shared `WordRow`. At widths up to 850px, metadata appears above the action pair; only the metadata can wrap. Playback and favorite controls stay together without a fixed outer width that could clip an AI voice indicator. Desktop keeps the existing inline arrangement. Library, character vocabulary, related words, sentence vocabulary, and collection lists use this shared component.
+
+- TypeScript and the production build passed; final entry asset is `index-D1m26caz.js`. Formatting and whitespace checks passed.
+- All six existing dictionary acceptance cases passed on Chromium desktop and mobile WebKit, including real bundled data, production service-worker cold offline reload, and light/dark accessibility audits. No new permanent tests or unrelated unit runs were added for this layout correction.
+- Focused inspection of the real three-row うぬぼれ results confirmed aligned playback/favorite buttons and no horizontal page overflow at 320, 390, 640, 850, 1024, and 1440 CSS pixels in Chromium, and 320, 390, 640, and 850 pixels in WebKit. Cases include Common plus N1, Common only, and neither label. Keyboard Tab moves from playback to favorite; Space toggles the favorite and the selection survives a new-page reload after the origin is stopped.
+- Inspected [desktop](screenshots/word-actions-desktop.png) and [mobile](screenshots/word-actions-mobile.png) dark-theme captures. This is automated WebKit coverage, not physical iOS acceptance. Public image tags and HTTPS hosting are unchanged.
+- Rebuilt the local Docker preview at `http://localhost:8080`; static-host checks passed for the shell, icons, Wasm, all nine content assets, cache headers, CSP, and missing-asset behavior. It serves the same final entry asset as browser acceptance.

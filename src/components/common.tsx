@@ -209,10 +209,18 @@ export function WordRow({ word }: { word: Vocabulary }) {
         <VocabularyMeanings word={word} compact />
       </div>
       <div className="word-actions">
-        {word.isCommon && <span className="badge">Common</span>}
-        {word.jlptLevel > 0 && <span className="tag">N{word.jlptLevel}</span>}
-        <WordAudioButton word={word} />
-        <FavoriteButton id={`word:${word.id}`} />
+        {(word.isCommon || word.jlptLevel > 0) && (
+          <div className="word-tags">
+            {word.isCommon && <span className="badge">Common</span>}
+            {word.jlptLevel > 0 && (
+              <span className="tag">N{word.jlptLevel}</span>
+            )}
+          </div>
+        )}
+        <div className="word-buttons">
+          <WordAudioButton word={word} />
+          <FavoriteButton id={`word:${word.id}`} />
+        </div>
       </div>
     </article>
   );
