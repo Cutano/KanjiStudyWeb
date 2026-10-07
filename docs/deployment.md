@@ -106,7 +106,7 @@ Optional user-configured [AI speech](ai-speech.md) additionally uses `connect-sr
 | Application navigation                                                       | HTML shell fallback; hash routes work without server route definitions. |
 | `/healthz`                                                                   | HTTP 200 with a small text response.                                    |
 
-Do not rewrite a missing database or Wasm request to `index.html`. The packaged `.sqlite.bin` file contains gzip-compressed data; do not add `Content-Encoding: gzip` to it, because the application verifies the stored bytes and performs decompression itself. Do not disable or transform service worker scripts at a CDN.
+Do not rewrite a missing database or Wasm request to `index.html`. The packaged `.sqlite.bin` file contains gzip-compressed data; do not label those stored bytes as `Content-Encoding: gzip`, because the application verifies them and performs catalog decompression itself. An additional HTTP compression layer, such as GitHub Pages applying gzip during transfer, is supported: the browser removes that layer before the application verifies the original stored bytes. When checking file sizes through HEAD requests, request `Accept-Encoding: identity` so the returned length can be compared to the manifest. Do not disable or transform service worker scripts at a CDN.
 
 ## Initial Installation
 
