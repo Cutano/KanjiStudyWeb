@@ -17,7 +17,8 @@ it("replaces candidate Blob audio without removing saved API settings or metadat
     },
   });
   const settings = {
-    ...DEFAULT_TTS_SETTINGS,
+    endpoint: DEFAULT_TTS_SETTINGS.endpoint,
+    model: DEFAULT_TTS_SETTINGS.model,
     apiKey: "migration-test-key",
     voice: "alloy",
   };
@@ -31,7 +32,7 @@ it("replaces candidate Blob audio without removing saved API settings or metadat
   await previous.put("metadata", 3, "generation");
   previous.close();
 
-  expect(await getTtsSettings()).toEqual(settings);
+  expect(await getTtsSettings()).toEqual({ ...settings, enabled: true });
   expect(await getTtsCacheStats()).toEqual({ count: 0, bytes: 0 });
   const upgraded = await openTtsDatabase();
   expect(upgraded.version).toBe(2);

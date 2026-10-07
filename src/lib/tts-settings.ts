@@ -1,6 +1,7 @@
 import { openDB, type DBSchema, type IDBPDatabase } from "idb";
 
 export interface TtsSettings {
+  enabled: boolean;
   endpoint: string;
   apiKey: string;
   model: string;
@@ -8,6 +9,7 @@ export interface TtsSettings {
 }
 
 export const DEFAULT_TTS_SETTINGS: Readonly<TtsSettings> = Object.freeze({
+  enabled: true,
   endpoint: "https://api.openai.com/v1/audio/speech",
   apiKey: "",
   model: "gpt-4o-mini-tts",
@@ -22,7 +24,10 @@ export interface CachedSpeech {
 }
 
 interface TtsDatabase extends DBSchema {
-  settings: { key: string; value: TtsSettings };
+  settings: {
+    key: string;
+    value: Omit<TtsSettings, "enabled"> & { enabled?: boolean };
+  };
   audio: { key: string; value: CachedSpeech };
   metadata: { key: string; value: number };
 }
@@ -56,6 +61,7 @@ export function openTtsDatabase(): Promise<IDBPDatabase<TtsDatabase>> {
 
 export function normalizeTtsSettings(settings: TtsSettings): TtsSettings {
   const normalized = {
+    enabled: settings.enabled,
     endpoint: settings.endpoint.trim(),
     apiKey: settings.apiKey.trim(),
     model: settings.model.trim(),
@@ -95,7 +101,10 @@ export function normalizeTtsSettings(settings: TtsSettings): TtsSettings {
 
 export async function getTtsSettings(): Promise<TtsSettings> {
   const db = await openTtsDatabase();
-  return (await db.get("settings", "current")) ?? { ...DEFAULT_TTS_SETTINGS };
+  const stored = await db.get("settings", "current");
+  return stored
+    ? { ...stored, enabled: stored.enabled ?? true }
+    : { ...DEFAULT_TTS_SETTINGS };
 }
 
 export async function saveTtsSettings(settings: TtsSettings): Promise<void> {

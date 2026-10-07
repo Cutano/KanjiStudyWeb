@@ -41,7 +41,7 @@ Explore kanji, practice recall and handwriting, build personal collections, and 
 
 All counts refer to the supplied catalog. See the [data audit](docs/research/data-audit.md) for coverage and provenance.
 
-For words and sentences without recordings, optionally configure an **OpenAI-compatible AI speech API** in Settings using your own key. Generated audio is reused offline from a cache limited to **10 clips and 50 MB**. Without an API key, playback uses Japanese browser speech. See [AI speech setup and behavior](docs/ai-speech.md).
+For words and sentences without recordings, optionally configure an **OpenAI-compatible AI speech API** in Settings using your own key. Generated audio is reused offline from a cache limited to **10 clips and 50 MB**. Turn off **Enable AI speech** to use Japanese browser speech while retaining your configuration and cache; browser speech is also used without an API key. See [AI speech setup and behavior](docs/ai-speech.md).
 
 Vocabulary search prioritizes exact matches and JLPT level, followed by available example counts and commonness. Word details include grouped definitions, separate part-of-speech labels, and mora pitch diagrams. Open any catalog example to explore its linked words and kanji, save notes, and mark it as read offline. See the [dictionary follow-up](docs/dictionary-parity.md) for reference comparisons and verification.
 

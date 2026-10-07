@@ -78,7 +78,10 @@ export function TtsSettings() {
     };
   }, []);
 
-  function edit(field: keyof SpeechSettings, value: string) {
+  function edit(
+    field: Exclude<keyof SpeechSettings, "enabled">,
+    value: string,
+  ) {
     setSettings((previous) => ({ ...previous, [field]: value }));
     setMessage("");
   }
@@ -94,6 +97,28 @@ export function TtsSettings() {
       setSettings(next);
       setSaved(next);
       setMessage("AI speech settings saved.");
+    } catch (reason) {
+      setError((reason as Error).message);
+    } finally {
+      setBusy(false);
+    }
+  }
+
+  async function toggleSpeech() {
+    if (busy) return;
+    setBusy(true);
+    setError("");
+    setMessage("");
+    try {
+      const next = { ...(await getTtsSettings()), enabled: !saved.enabled };
+      await saveTtsSettings(next);
+      setSaved(next);
+      setSettings((previous) => ({ ...previous, enabled: next.enabled }));
+      setMessage(
+        next.enabled
+          ? "AI speech preference saved. A configured API key is required."
+          : "AI speech disabled. Missing recordings use browser speech.",
+      );
     } catch (reason) {
       setError((reason as Error).message);
     } finally {
@@ -142,7 +167,7 @@ export function TtsSettings() {
         <h2 id="tts-heading">AI speech</h2>
         <p>
           Native recordings play first. When a recording is missing, use your AI
-          speech provider, or your browser’s voice if no API key is configured.
+          speech provider if enabled and configured, or your browser’s voice.
         </p>
         <p>
           AI speech is a generated voice. Requests go directly to the provider
@@ -154,12 +179,32 @@ export function TtsSettings() {
         onSubmit={save}
         autoComplete="off"
       >
+        <div className="tts-enable-row">
+          <span>Enable AI speech</span>
+          <button
+            type="button"
+            role="switch"
+            className="tts-enable-switch"
+            aria-label="Enable AI speech"
+            aria-describedby="tts-enable-help"
+            aria-checked={saved.enabled}
+            disabled={!ready}
+            aria-disabled={!ready || busy}
+            onClick={toggleSpeech}
+          >
+            <span aria-hidden="true" />
+          </button>
+        </div>
+        <p id="tts-enable-help" className="muted small-text tts-field-help">
+          Changes apply immediately. Turn off to use browser speech while
+          keeping your API settings and generated audio cache.
+        </p>
         <div className="tts-connection-state">
           <KeyRound size={17} aria-hidden="true" />
           <span>
             {!ready
               ? "Loading speech settings…"
-              : saved.apiKey
+              : saved.enabled && saved.apiKey
                 ? "AI speech enabled"
                 : "Browser voice fallback"}
           </span>
@@ -272,9 +317,9 @@ export function TtsSettings() {
             value={cache?.bytes ?? 0}
           />
           <p className="muted small-text">
-            Repeated playback reuses saved audio, including offline. Up to 10
-            clips and 50 MB are kept; the least recently played clips are
-            removed when the cache is full.
+            With AI speech enabled, repeated playback reuses saved audio,
+            including offline. Up to 10 clips and 50 MB are kept; the least
+            recently played clips are removed when the cache is full.
           </p>
           <button
             className="text-button"

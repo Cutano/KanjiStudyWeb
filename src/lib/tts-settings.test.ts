@@ -4,6 +4,7 @@ import { exportBackup } from "../state/profile";
 import {
   DEFAULT_TTS_SETTINGS,
   getTtsSettings,
+  openTtsDatabase,
   saveTtsSettings,
 } from "./tts-settings";
 
@@ -21,6 +22,7 @@ describe("device-only AI speech settings", () => {
       voice: " custom-voice ",
     });
     expect(await getTtsSettings()).toEqual({
+      enabled: true,
       endpoint: "https://speech.example/v1/audio/speech",
       apiKey: "private-test-key",
       model: "custom-model",
@@ -28,6 +30,41 @@ describe("device-only AI speech settings", () => {
     });
     expect(exportBackup()).not.toContain("private-test-key");
     expect(exportBackup()).not.toContain("speech.example");
+  });
+
+  it("persists an independent disabled state without removing the API configuration", async () => {
+    const disabled = {
+      ...DEFAULT_TTS_SETTINGS,
+      enabled: false,
+      apiKey: "retained-test-key",
+      voice: "alloy",
+    };
+    await saveTtsSettings(disabled);
+    expect(await getTtsSettings()).toEqual(disabled);
+    const db = await openTtsDatabase();
+    expect((await db.get("settings", "current"))?.enabled).toBe(false);
+    await saveTtsSettings({ ...(await getTtsSettings()), enabled: true });
+    expect(await getTtsSettings()).toEqual({ ...disabled, enabled: true });
+  });
+
+  it("keeps existing API configuration enabled when its stored record predates the switch", async () => {
+    const db = await openTtsDatabase();
+    const legacy = {
+      endpoint: DEFAULT_TTS_SETTINGS.endpoint,
+      model: DEFAULT_TTS_SETTINGS.model,
+      voice: "alloy",
+      apiKey: "legacy-test-key",
+    };
+    await db.put("settings", legacy, "current");
+    await db.put("audio", {
+      key: "existing-clip",
+      data: new Uint8Array([1, 2, 3]).buffer,
+      mimeType: "audio/mpeg",
+      lastUsed: 1,
+    });
+    expect(await getTtsSettings()).toEqual({ ...legacy, enabled: true });
+    expect(db.version).toBe(2);
+    expect(await db.get("audio", "existing-clip")).toBeDefined();
   });
 
   it.each([

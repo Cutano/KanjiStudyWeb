@@ -50,6 +50,11 @@ afterEach(() => {
 
 describe("pronunciation source selection", () => {
   it("uses a bundled recording without reading API credentials or generating audio", async () => {
+    vi.mocked(getTtsSettings).mockResolvedValue({
+      ...DEFAULT_TTS_SETTINGS,
+      enabled: false,
+      apiKey: "test-only",
+    });
     expect(await loadPronunciation("がっこう", "school|other")).toEqual({
       source: "recording",
       blob: recording,
@@ -69,9 +74,22 @@ describe("pronunciation source selection", () => {
       expect.objectContaining({ apiKey: "test-only" }),
     );
   });
-  it("chooses browser speech only when no API key is configured", async () => {
+  it("chooses browser speech when no API key is configured", async () => {
     vi.mocked(getTtsSettings).mockResolvedValueOnce({
       ...DEFAULT_TTS_SETTINGS,
+    });
+    expect(await loadPronunciation("日本語")).toEqual({ source: "browser" });
+    expect(getAiSpeech).not.toHaveBeenCalled();
+  });
+  it("bypasses AI speech and its cache when disabled, while preserving the configured key", async () => {
+    vi.mocked(getTtsSettings).mockResolvedValue({
+      ...DEFAULT_TTS_SETTINGS,
+      enabled: false,
+      apiKey: "configured-test-key",
+    });
+    vi.mocked(catalog.getAudioBlob).mockRejectedValueOnce(new Error("Missing"));
+    expect(await loadPronunciation("日本語", "missing")).toEqual({
+      source: "browser",
     });
     expect(await loadPronunciation("日本語")).toEqual({ source: "browser" });
     expect(getAiSpeech).not.toHaveBeenCalled();

@@ -2,6 +2,60 @@
   min-width: 0;
 }
 
+.tts-enable-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.tts-enable-switch {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  flex-shrink: 0;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  border-radius: 8px;
+}
+
+.tts-enable-switch > span {
+  display: block;
+  position: relative;
+  width: 40px;
+  height: 24px;
+  border-radius: 12px;
+  background: var(--muted);
+}
+
+.tts-enable-switch[aria-disabled="true"] {
+  opacity: 0.5;
+  cursor: default;
+}
+
+.tts-enable-switch > span::before {
+  content: "";
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: var(--surface);
+}
+
+.tts-enable-switch[aria-checked="true"] > span {
+  background: var(--primary);
+}
+
+.tts-enable-switch[aria-checked="true"] > span::before {
+  transform: translateX(16px);
+}
+
 .tts-connection-state {
   display: flex;
   align-items: center;

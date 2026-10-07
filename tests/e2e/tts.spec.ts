@@ -295,7 +295,82 @@ test("native, configured AI and browser speech follow priority and cached AI sur
 
     await navigate(page, "settings");
     await expect(page.getByText(/2 \/ 10 clips/)).toBeVisible();
+    const enabled = page.getByRole("switch", {
+      name: "Enable AI speech",
+      exact: true,
+    });
+    await expect(enabled).toBeChecked();
+    // The immediate switch must not commit edits to the separate configuration form.
+    await page
+      .getByLabel("Speech API endpoint", { exact: true })
+      .fill(`${provider.endpoint}/unsaved`);
+    await page.getByLabel("API key", { exact: true }).fill("unsaved-test-key");
+    await page.getByLabel("Model", { exact: true }).fill("unsaved-model");
+    await page.getByLabel("Voice", { exact: true }).fill("unsaved-voice");
+    await enabled.focus();
+    await page.keyboard.press("Space");
+    await expect(enabled).not.toBeChecked();
+    await expect(enabled).toBeFocused();
     await page.reload();
+    await expect(enabled).not.toBeChecked();
+    await expect(page.getByLabel("API key", { exact: true })).toHaveValue(
+      fakeKey,
+    );
+    await expect(
+      page.getByLabel("Speech API endpoint", { exact: true }),
+    ).toHaveValue(provider.endpoint);
+    await expect(page.getByLabel("Model", { exact: true })).toHaveValue(
+      "gpt-4o-mini-tts",
+    );
+    await expect(page.getByLabel("Voice", { exact: true })).toHaveValue(
+      "coral",
+    );
+    await expect(page.getByText(/2 \/ 10 clips/)).toBeVisible();
+
+    // Turning AI off leaves bundled recordings available and skips generated
+    // audio even when the requested sentence is already in the AI cache.
+    await navigate(page, "word/1206730");
+    await playMedia(
+      page,
+      page
+        .getByRole("button", { name: "Play pronunciation", exact: true })
+        .first(),
+    );
+    const recordingsPlayed = await page
+      .locator("html")
+      .getAttribute("data-played-audio");
+    await navigate(page, "sentence/2381");
+    await sentenceAudio(page).click();
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-spoken-text",
+      "今日は漢字の書き取りがある。",
+    );
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-browser-speech-count",
+      "1",
+    );
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-played-audio",
+      recordingsPlayed!,
+    );
+    expect(provider.requests).toHaveLength(2);
+    await navigate(page, "settings");
+    await expect(page.getByText(/2 \/ 10 clips/)).toBeVisible();
+    await enabled.focus();
+    await page.keyboard.press("Space");
+    await expect(enabled).toBeChecked();
+    await expect(enabled).toBeFocused();
+    await navigate(page, "sentence/2381");
+    await playMedia(page, sentenceAudio(page));
+    expect(provider.requests).toHaveLength(2);
+    await expect(page.locator("html")).toHaveAttribute(
+      "data-browser-speech-count",
+      "1",
+    );
+
+    await navigate(page, "settings");
+    await page.reload();
+    await expect(enabled).toBeChecked();
     await expect(page.getByLabel("API key", { exact: true })).toHaveValue(
       fakeKey,
     );

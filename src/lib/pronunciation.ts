@@ -21,7 +21,7 @@ export async function loadPronunciation(
     }
   }
   const settings = await getTtsSettings();
-  if (settings.apiKey)
+  if (settings.enabled && settings.apiKey)
     return { source: "ai", blob: await getAiSpeech(text, settings) };
   return { source: "browser" };
 }
