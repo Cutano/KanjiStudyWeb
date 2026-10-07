@@ -285,3 +285,13 @@ The user selected the current application as the 1.0.0 stable release. It includ
 
 - TypeScript, all **132 unit/integration tests**, the production build, full formatting, and whitespace checks passed. Entry assets remain `index-CI8T_Uld.js` and `index-FdHBVUsF.css`, identical to the verified Favorites follow-up.
 - The focused word-label and Favorites layout/interaction evidence immediately above applies to these unchanged application assets. Browser checks remain distinct from physical-device acceptance, and Axe retains the documented `meta-viewport` exception requested for the scaling policy.
+
+- All **34 production Playwright cases** passed without retries (17 Chromium desktop and 17 mobile WebKit), including complete-catalog cold offline reload, interrupted installation, study checkpoints through a shell update, and speech-cache workflows.
+- Both `linux/amd64` and `linux/arm64` images passed static serving, byte-length/SHA-256 checks for all nine content assets, and OCI version/source-revision validation. Catalog version remains `18993e9136e118e785b8`.
+- With the actual arm64 container stopped, Chromium and mobile WebKit reopened fresh pages offline, retained a saved favorite, and decoded native word audio without page errors. The released Favorites icon and horizontal Common/JLPT labels were also verified in that offline container build. The arm64 container became healthy; the amd64 health command passed under Docker Desktop emulation.
+
+Git tag [`v1.0.0`](https://github.com/Cutano/KanjiStudyWeb/tree/v1.0.0) identifies source revision `4d9b886ec78856030aadbdaf11c51db491a73d68`. The tag and `main` were pushed, and [Kanji Study Web 1.0.0](https://github.com/Cutano/KanjiStudyWeb/releases/tag/v1.0.0) was published as the latest stable GitHub release. Docker Hub tags `1.0.0`, `sha-4d9b886`, and `latest` identify index `sha256:2bb1840bc87bdc1809a09cbe0cb538e131fcaef492d1dfb35e4c926efbe8b483`.
+
+Remote registry inspection confirmed both architectures, two provenance attestations, and identical digests for all three tags. The registry digest matches the locally tested image, with no intervening rebuild. Anonymous Docker Hub API access confirmed public availability.
+
+Pull `cutano/kanji-study-web:1.0.0` or pin `cutano/kanji-study-web@sha256:2bb1840bc87bdc1809a09cbe0cb538e131fcaef492d1dfb35e4c926efbe8b483`. Publication does not replace existing deployments: recreate the deployed container from the new image and select **Update app** when the installed PWA offers the new shell. No study-data clearing or reinstallation is required.
