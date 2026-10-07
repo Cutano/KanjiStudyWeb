@@ -10,7 +10,7 @@ The application is currently configured for the root of an origin, for example `
 
 ### Published Docker Hub image
 
-The public image is [cutano/kanji-study-web](https://hub.docker.com/r/cutano/kanji-study-web). Tags `0.2.0`, `sha-f093b7b`, and `latest` initially identify the same release with both `linux/amd64` and `linux/arm64` variants. Docker selects the host architecture automatically. Prefer a version tag or the recorded release digest for a fixed deployment; `latest` may move with future releases.
+The public image is [cutano/kanji-study-web](https://hub.docker.com/r/cutano/kanji-study-web). The current release is `0.2.2`, also available as `latest`, with both `linux/amd64` and `linux/arm64` variants. Docker selects the host architecture automatically. Prefer a version tag or the recorded release digest for a fixed deployment; `latest` may move with future releases. Exact source revisions and image digests are recorded in [release verification](release-report.md).
 
 Run the prebuilt image without a local database or build toolchain:
 
@@ -20,7 +20,7 @@ docker run -d --name kanji-study-web \
   -p 127.0.0.1:8080:8080 \
   --read-only --tmpfs /tmp:rw,size=16m,mode=1777 \
   --cap-drop ALL --security-opt no-new-privileges:true \
-  cutano/kanji-study-web:0.2.0
+  cutano/kanji-study-web:0.2.2
 ```
 
 Open [the local application](http://localhost:8080). Use the HTTPS reverse proxy below for remote devices. To explicitly select the x86-64 variant, add `--platform linux/amd64` to `docker run` or `docker pull`.

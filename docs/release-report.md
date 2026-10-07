@@ -163,3 +163,11 @@ Stroke controls shared by Character details and study views now use 36 × 36px b
 - Focused production checks passed in Chromium and WebKit at 320, 390, 640, 641, 850, 1180, and 1440px, across both themes and the real 日 and 鬱 catalog entries: 28 viewport/theme configurations and 56 character checks. Every control measured 36 × 36px, with contained icons; `4 / 4` and `29 / 29` remained single-line, and there was no horizontal overflow. At widths up to 640px, both action buttons were below the card and matched the aside's full width.
 - Previous/next stroke, play/pause/replay, Practice setup, and Add dialog opening/closing passed in both engines. Inspected [mobile dark layout](screenshots/character-mobile-layout.png) and [desktop light controls](screenshots/character-desktop-controls.png) from isolated browser contexts. These are browser simulations, not physical-device acceptance.
 - Local Docker rebuilt and started healthy. Static host verification passed for the shell, icons, Wasm, nine content assets, cache headers, CSP, and missing assets. The verified entry assets are `index-DNDS-HC0.js` and `index-DDz7RQDn.css`; the public Docker Hub image was not republished by this refinement.
+
+## Version 0.2.2 release — 2026-10-07
+
+This release includes the independent AI speech enable switch, Library-style rounded topbar search focus, and the Character page's stacked mobile actions with compact square stroke controls. The package version and deployment examples now use 0.2.2. The release retains the static, offline-first architecture and the existing catalog version; no new database or profile migration is introduced.
+
+The intended release artifacts are Git tag `v0.2.2` and Docker Hub tags `0.2.2`, `latest`, and a source-revision tag, with `linux/amd64` and `linux/arm64` variants. Publication evidence is recorded below after the artifacts are verified and uploaded.
+
+- Release preparation passed all 111 unit/integration tests, TypeScript checking, production build, formatting, and whitespace checks. Dependency versions, the protected repository instructions, and the source database remain unchanged.
