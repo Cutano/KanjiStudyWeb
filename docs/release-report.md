@@ -108,3 +108,12 @@ Verification used the real bundled catalog and local production build:
 - A targeted browser check verified Space/Enter activation, pressed state, reading visibility, furigana persistence after reload, and word spacing in both engines. Twelve layout checks covered both engines, both themes, and 1440px, 390px, and 320px widths; all retained right alignment without horizontal overflow. Desktop and narrow mobile captures were visually inspected.
 
 These are automated browser checks, not new physical iOS or installed Android verification.
+
+## Compact sentence controls follow-up — 2026-10-07
+
+Supersedes the previous sentence footer sizing and wrapping behavior. The toggles now share the Mark as read text-button typography and vertical padding, with smaller corner radii and no border or minimum-height expansion. At widths up to 640px they show 16px icons with accessible names, title hints, and the existing pressed state. The footer stays on one line.
+
+- TypeScript checking and production build passed.
+- Twenty-four production layout checks passed across Chromium/WebKit, light/dark themes, and widths of 1440, 768, 641, 640, 390, and 320px. Each footer and each read button measured 32.8px tall; both toggle buttons matched their vertical position and height, and the options stayed right-aligned without horizontal overflow. Mobile icon targets measured 32 × 32.8px.
+- Keyboard activation, furigana visibility and persistence, and word spacing passed in both engines. Desktop and 320px mobile captures were visually inspected.
+- The existing two production offline dictionary cases and four light/dark accessibility cases passed. This remains browser simulation rather than physical-device acceptance.

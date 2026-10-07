@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BookOpen, Check, Clipboard } from "lucide-react";
+import { BookOpen, Check, Clipboard, Languages, WholeWord } from "lucide-react";
 import { catalog } from "../data/catalog";
 import { plainSentence } from "../data/text";
 import { useAsync } from "../lib/hooks";
@@ -101,7 +101,9 @@ export function SentenceDetails({ id }: { id: number }) {
           >
             <button
               type="button"
-              className="sentence-toggle"
+              className="text-button sentence-toggle"
+              aria-label="Furigana"
+              title="Furigana"
               aria-pressed={profile.settings.showFurigana}
               onClick={() => {
                 updateProfile((draft) => {
@@ -109,15 +111,29 @@ export function SentenceDetails({ id }: { id: number }) {
                 }).catch((reason: Error) => setError(reason.message));
               }}
             >
-              Furigana
+              <Languages
+                className="sentence-toggle-icon"
+                size={16}
+                aria-hidden="true"
+              />
+              <span className="sentence-toggle-label">Furigana</span>
             </button>
             <button
               type="button"
-              className="sentence-toggle"
+              className="text-button sentence-toggle"
+              aria-label="Separate linked words"
+              title="Separate linked words"
               aria-pressed={divideWords}
               onClick={() => setDivideWords((value) => !value)}
             >
-              Separate linked words
+              <WholeWord
+                className="sentence-toggle-icon"
+                size={16}
+                aria-hidden="true"
+              />
+              <span className="sentence-toggle-label">
+                Separate linked words
+              </span>
             </button>
           </div>
         </div>
