@@ -1,1 +1,12 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192"><rect width="192" height="192" rx="44" fill="#244c40"/><g stroke="#f4f1e7" stroke-width="11" stroke-linecap="round" fill="none"><path d="M51 58h90M45 87h102M96 45v100M60 116l-14 23M132 116l14 23"/></g><circle cx="145" cy="46" r="8" fill="#d8b874"/></svg>
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 192 192">
+  <title>字</title>
+  <rect width="192" height="192" rx="44" fill="#244c40"/>
+  <g fill="none" stroke="#f4f1e7" stroke-width="9.5" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M92 40l7 11"/>
+    <path d="M51 64l-5 19"/>
+    <path d="M51 67h94l-5 16"/>
+    <path d="M69 95h55l-28 20"/>
+    <path d="M94 111q7 11 7 30q0 10-10 10h-12"/>
+    <path d="M48 124h96"/>
+  </g>
+</svg>

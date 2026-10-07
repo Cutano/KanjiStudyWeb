@@ -38,7 +38,7 @@ The required catalog and audio payload is approximately 142.4 MiB (149 MB). The 
 
 ## Automated and Container Results
 
-The final application source is commit `680022d`; the verification/container milestone is `4a5acab`. Later documentation-only commits do not change the verified bundle. Tests used shell cache `kanji-shell-7104588003179bf0` (`index-BOE7QUiE.js`, `index-YfI-4P67.css`).
+The baseline application source is commit `680022d`; the verification/container milestone is `4a5acab`. Tests used shell cache `kanji-shell-7104588003179bf0` (`index-BOE7QUiE.js`, `index-YfI-4P67.css`). Subsequent asset changes and their verification are recorded below.
 
 | Check                                              | Result                                                                                                                                                              |
 | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
@@ -69,3 +69,14 @@ An HTTPS public hostname was not supplied. Local Docker serving is verified; dep
 The source lacks stroke geometry for 628 kanji, which use explicit glyph and self-assessment fallback. Native audio covers the referenced words, not every dictionary word or sentence. Optional speech selects only installed local Japanese voices. Calendar export supplies daily reminders without promising unavailable universal offline background notification APIs.
 
 See [native parity boundaries](requirements.md#native-parity-boundaries-at-delivery), [source audit](research/data-audit.md), and [deployment](deployment.md).
+
+## Icon follow-up — 2026-10-07
+
+Replaced the abstract mark in `public/icon.svg` with an original six-stroke vector drawing of 字. The green background and cream strokes remain; the decorative gold dot was removed. Regenerated the 192px and 512px installation icons with `node scripts/generate-icons.mjs`. The artwork uses local paths and does not depend on a font.
+
+- `npm run typecheck` and `npm run build` passed; the new shell cache is `kanji-shell-cacad728fff2c6d7`.
+- `npx playwright test tests/e2e/offline-catalog.spec.ts --grep 'complete catalog'` passed both Chromium desktop and WebKit mobile cases using the real bundled catalog and production service worker.
+- Visually inspected 32px, 64px, and 192px SVG rendering, a circular PNG mask, and onboarding at 1440px desktop and 390px mobile widths; the glyph is legible and the pages have no horizontal overflow.
+- A separate Chromium production check verified that all three icon assets match the source bytes, including after initialization and an offline reload.
+
+This follow-up verifies the updated local production build. The baseline Docker image and installed-device report above have not been regenerated for this artwork change.
