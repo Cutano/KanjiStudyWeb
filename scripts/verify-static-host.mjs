@@ -10,6 +10,11 @@ const headers = async (path) => {
     response.headers.get("content-security-policy") ?? "",
     /wasm-unsafe-eval/,
   );
+  assert.match(
+    response.headers.get("content-security-policy") ?? "",
+    /connect-src 'self' https: http:\/\/localhost:\* http:\/\/127\.0\.0\.1:\*;/,
+    "Configured speech APIs must be reachable under the production CSP",
+  );
   return response.headers;
 };
 

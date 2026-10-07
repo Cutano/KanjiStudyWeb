@@ -25,8 +25,7 @@ import { RATING_LABELS, SYSTEMS, levelLabel } from "../lib/constants";
 import { useProfile } from "../state/useProfile";
 import { updateProfile } from "../state/profile";
 import {
-  AudioButton,
-  DeviceVoiceButton,
+  WordAudioButton,
   BackButton,
   CharacterCard,
   Empty,
@@ -572,11 +571,7 @@ export function WordDetails({ id }: { id: number }) {
       <div className="word-detail-title">
         <h1 lang="ja">{vocabularyLabel(word)}</h1>
         <FavoriteButton id={`word:${id}`} />
-        {word.audio ? (
-          <AudioButton resource={word.audio} />
-        ) : (
-          <DeviceVoiceButton text={word.readings.split(";")[0].split(",")[0]} />
-        )}
+        <WordAudioButton word={word} />
       </div>
       <p className="japanese-text muted" lang="ja">
         {word.readings.split(";")[0]}

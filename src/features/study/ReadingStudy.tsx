@@ -1,7 +1,7 @@
 import { Check, ChevronLeft, ChevronRight } from "lucide-react";
 import type { CharacterDetail, Rating, Vocabulary } from "../../domain/types";
 import { vocabularyLabel, vocabularyMeaning } from "../../data/text";
-import { AudioButton, JapaneseSentence } from "../../components/common";
+import { WordAudioButton, JapaneseSentence } from "../../components/common";
 export interface ReadingItem {
   id: string;
   text: string;
@@ -147,7 +147,7 @@ export function ReadingStudy({
                 {vocabularyLabel(word)}
               </a>
               <span>{vocabularyMeaning(word)}</span>
-              {word.audio && <AudioButton resource={word.audio} />}
+              <WordAudioButton word={word} />
             </div>
           ))}
         </details>

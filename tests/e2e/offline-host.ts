@@ -8,6 +8,7 @@ import { resolve, extname, sep } from "node:path";
  */
 export interface OfflineHostOptions {
   directory?: string;
+  responseHeaders?: Record<string, string>;
   onRequest?: (pathname: string) => void;
   transformResponse?: (
     pathname: string,
@@ -47,6 +48,7 @@ export async function startOfflineHost(options: OfflineHostOptions = {}) {
         : original;
       if (response.destroyed) return;
       response.writeHead(200, {
+        ...options.responseHeaders,
         "Content-Type": mime[extname(path)] || "application/octet-stream",
         "Cache-Control": "no-cache",
         "Content-Length": body.byteLength,

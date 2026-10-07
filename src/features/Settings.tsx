@@ -28,6 +28,7 @@ import { useAsync } from "../lib/hooks";
 import { ErrorNotice } from "../components/common";
 import { catalog } from "../data/catalog";
 import { requestDurableStorage } from "../lib/pwa";
+import { TtsSettings } from "./TtsSettings";
 
 export function Settings({ onInstall }: { onInstall: () => void }) {
   const profile = useProfile();
@@ -308,6 +309,7 @@ export function Settings({ onInstall }: { onInstall: () => void }) {
           </button>
         </div>
       </section>
+      <TtsSettings />
       <section className="settings-section">
         <div>
           <h2>Your progress belongs to you</h2>
@@ -318,7 +320,8 @@ export function Settings({ onInstall }: { onInstall: () => void }) {
             <ShieldCheck size={25} />
             <p>
               Backups include study history, ratings, notes, custom sets,
-              settings, and imported extensions. Dictionary files stay separate.
+              settings, and imported extensions. Dictionary files, AI speech
+              credentials, and generated audio stay separate.
             </p>
           </div>
           <div className="button-group wrap">
@@ -595,7 +598,7 @@ export function Settings({ onInstall }: { onInstall: () => void }) {
             onClick={async () => {
               if (
                 confirm(
-                  "Reset all study progress, notes, favorites, custom sets, extensions, and settings? This cannot be undone without a backup.",
+                  "Reset all study progress, notes, favorites, custom sets, extensions, and study settings? AI speech settings and generated audio stay on this device. This cannot be undone without a backup.",
                 )
               ) {
                 await updateProfile((draft) =>

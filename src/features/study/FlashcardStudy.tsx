@@ -10,7 +10,7 @@ import {
   vocabularyLabel,
   vocabularyMeaning,
 } from "../../data/text";
-import { AudioButton, FavoriteButton } from "../../components/common";
+import { WordAudioButton, FavoriteButton } from "../../components/common";
 import { StrokeDiagram } from "../../components/StrokeDiagram";
 interface Props {
   character: CharacterDetail;
@@ -83,7 +83,7 @@ export function FlashcardStudy({
                   {vocabularyLabel(word)}
                 </a>
                 <span>{vocabularyMeaning(word).slice(0, 100)}</span>
-                {word.audio && <AudioButton resource={word.audio} />}
+                <WordAudioButton word={word} />
               </div>
             ))}
             <details className="study-stroke-details">

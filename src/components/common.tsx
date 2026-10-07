@@ -1,19 +1,12 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
-import {
-  AlertCircle,
-  ArrowLeft,
-  LoaderCircle,
-  Star,
-  Volume2,
-  X,
-} from "lucide-react";
+import { AlertCircle, ArrowLeft, LoaderCircle, Star, X } from "lucide-react";
 import type { CharacterSummary, Vocabulary } from "../domain/types";
-import { catalog } from "../data/catalog";
 import { cleanReading, parseSentence, vocabularyLabel } from "../data/text";
 import { VocabularyMeanings } from "./VocabularyMeanings";
 import { updateProfile } from "../state/profile";
 import { useProfile } from "../state/useProfile";
-import { speakJapanese } from "../lib/speech";
+import { WordAudioButton } from "./PronunciationButton";
+export { WordAudioButton, SpeechButton } from "./PronunciationButton";
 
 export function Loading({
   label = "Opening your library…",
@@ -203,51 +196,6 @@ export function CharacterCard({
     </article>
   );
 }
-let playingAudio: HTMLAudioElement | undefined;
-let playingUrl: string | undefined;
-export function AudioButton({ resource }: { resource: string }) {
-  const [busy, setBusy] = useState(false);
-  const [error, setError] = useState("");
-  async function play() {
-    setBusy(true);
-    setError("");
-    try {
-      playingAudio?.pause();
-      if (playingUrl) URL.revokeObjectURL(playingUrl);
-      const blob = await catalog.getAudioBlob(resource.split("|")[0]);
-      playingUrl = URL.createObjectURL(blob);
-      playingAudio = new Audio(playingUrl);
-      await playingAudio.play();
-    } catch (reason) {
-      setError(
-        reason instanceof Error ? reason.message : "Audio could not be played.",
-      );
-    } finally {
-      setBusy(false);
-    }
-  }
-  return (
-    <>
-      <button
-        className="icon-button"
-        disabled={busy}
-        onClick={play}
-        aria-label="Play pronunciation"
-      >
-        {busy ? (
-          <LoaderCircle size={18} className="spin" />
-        ) : (
-          <Volume2 size={18} />
-        )}
-      </button>
-      {error && (
-        <span className="muted" role="alert">
-          {error}
-        </span>
-      )}
-    </>
-  );
-}
 export function WordRow({ word }: { word: Vocabulary }) {
   return (
     <article className="word-row">
@@ -263,37 +211,10 @@ export function WordRow({ word }: { word: Vocabulary }) {
       <div className="word-actions">
         {word.isCommon && <span className="badge">Common</span>}
         {word.jlptLevel > 0 && <span className="tag">N{word.jlptLevel}</span>}
-        {word.audio && <AudioButton resource={word.audio} />}
+        <WordAudioButton word={word} />
         <FavoriteButton id={`word:${word.id}`} />
       </div>
     </article>
-  );
-}
-export function DeviceVoiceButton({ text }: { text: string }) {
-  const [message, setMessage] = useState("");
-  return (
-    <>
-      <button
-        className="icon-button"
-        aria-label="Read with offline device voice"
-        title="Optional offline Japanese device voice"
-        onClick={() => {
-          try {
-            speakJapanese(text);
-            setMessage("");
-          } catch (reason) {
-            setMessage((reason as Error).message);
-          }
-        }}
-      >
-        <Volume2 size={18} />
-      </button>
-      {message && (
-        <span className="voice-message" role="status">
-          {message}
-        </span>
-      )}
-    </>
   );
 }
 export function JapaneseSentence({

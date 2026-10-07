@@ -1,0 +1,96 @@
+.tts-settings .tts-fields {
+  min-width: 0;
+}
+
+.tts-connection-state {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  color: var(--primary);
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tts-settings .tts-field {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 8px;
+  min-width: 0;
+  font-size: 12px;
+}
+
+.tts-field input {
+  width: 100%;
+  min-width: 0;
+  font-size: 13px;
+}
+
+.tts-field-help {
+  margin-top: -7px;
+  line-height: 1.7;
+}
+
+.tts-model-fields {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 14px;
+}
+
+.tts-cache {
+  margin-top: 5px;
+  padding: 18px;
+  border: 1px solid var(--border);
+  background: var(--soft);
+  border-radius: 10px;
+}
+
+.tts-cache-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.tts-cache-heading > svg {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.tts-cache-heading strong {
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.tts-cache-heading p {
+  margin-top: 4px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.tts-cache meter {
+  display: block;
+  width: 100%;
+  height: 9px;
+  margin: 15px 0 12px;
+  accent-color: var(--primary);
+}
+
+.tts-cache .small-text {
+  line-height: 1.7;
+}
+
+.tts-cache .text-button {
+  margin-top: 8px;
+}
+
+@media (max-width: 640px) {
+  .tts-field input {
+    font-size: 16px;
+  }
+}
+
+@media (max-width: 380px) {
+  .tts-model-fields {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}

@@ -8,7 +8,7 @@ import { updateProfile } from "../state/profile";
 import {
   BackButton,
   CharacterCard,
-  DeviceVoiceButton,
+  SpeechButton,
   ErrorNotice,
   FavoriteButton,
   Loading,
@@ -67,7 +67,7 @@ export function SentenceDetails({ id }: { id: number }) {
           >
             {copied ? <Check /> : <Clipboard size={19} />}
           </button>
-          <DeviceVoiceButton text={plainSentence(sentence.text)} />
+          <SpeechButton text={plainSentence(sentence.text)} />
         </div>
       </div>
       <ErrorNotice message={error} />

@@ -6,7 +6,7 @@ import { useAsync, useDebounced } from "../lib/hooks";
 import { useProfile } from "../state/useProfile";
 import { updateProfile } from "../state/profile";
 import {
-  DeviceVoiceButton,
+  SpeechButton,
   Empty,
   ErrorNotice,
   FavoriteButton,
@@ -204,7 +204,7 @@ export function Reading() {
                       </a>
                     )}
                     <div className="button-group">
-                      <DeviceVoiceButton text={plainSentence(sentence.text)} />
+                      <SpeechButton text={plainSentence(sentence.text)} />
                       {source === "catalog" && (
                         <FavoriteButton id={sentence.id} />
                       )}

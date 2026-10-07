@@ -1,0 +1,30 @@
+.pronunciation-control {
+  display: inline-flex;
+  align-items: center;
+  position: relative;
+  gap: 3px;
+}
+.pronunciation-source {
+  color: var(--muted);
+  font-size: 10px;
+  line-height: 1.2;
+  max-width: 32px;
+}
+.pronunciation-error {
+  position: absolute;
+  z-index: 8;
+  right: 0;
+  top: calc(100% + 6px);
+  width: min(270px, 75vw);
+  padding: 12px 14px;
+  background: var(--surface);
+  color: var(--text);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  box-shadow: 0 4px 20px #0002;
+  font-size: 12px;
+  font-weight: 400;
+  line-height: 1.6;
+  text-align: left;
+  overflow-wrap: anywhere;
+}
