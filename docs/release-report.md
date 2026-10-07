@@ -117,3 +117,13 @@ Supersedes the previous sentence footer sizing and wrapping behavior. The toggle
 - Twenty-four production layout checks passed across Chromium/WebKit, light/dark themes, and widths of 1440, 768, 641, 640, 390, and 320px. Each footer and each read button measured 32.8px tall; both toggle buttons matched their vertical position and height, and the options stayed right-aligned without horizontal overflow. Mobile icon targets measured 32 × 32.8px.
 - Keyboard activation, furigana visibility and persistence, and word spacing passed in both engines. Desktop and 320px mobile captures were visually inspected.
 - The existing two production offline dictionary cases and four light/dark accessibility cases passed. This remains browser simulation rather than physical-device acceptance.
+
+## GitHub source publication — 2026-10-07
+
+Created the public repository [Cutano/KanjiStudyWeb](https://github.com/Cutano/KanjiStudyWeb) and configured it as the local `origin`. Source publication retains the existing commit history and the immutable supplied database; generated bundles, downloaded audio archives, and original APKs remain excluded by the existing ignore rules.
+
+- Reviewed tracked files and all reachable historical blob paths for prohibited archives and sensitive filenames; checked historical text blobs for common API-token and private-key patterns, with no matches. This is a targeted check, not an exhaustive secret audit.
+- `npm run typecheck`, all **108 unit/integration tests**, `npm run build`, `npm run format:check`, and `git diff --check` passed before publication.
+- Browser and installed-device acceptance were not rerun for this source publication; their evidence remains in the reports above and `ai-speech.md`.
+
+Publishing the Git repository does not deploy a public application origin. Docker and HTTPS hosting remain documented in `deployment.md`.
