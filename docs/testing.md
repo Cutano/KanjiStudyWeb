@@ -116,6 +116,8 @@ Playwright documents distinct service-worker network events and routing behavior
 
 The following suites run against production assets and the real catalog, in desktop Chromium and mobile WebKit projects. Consult the release report for their latest results; their existence does not imply that all broader device gates are passed.
 
+Starting with 0.2.4, the user explicitly requested `maximum-scale=1` on every platform while retaining the original control typography. Axe checks exclude only `meta-viewport` for this intentional product policy. Passing the remaining checks does not establish unrestricted text resizing or full WCAG conformance. Physical iOS Home Screen focus/keyboard behavior remains a separate user acceptance check.
+
 | File                      | Coverage                                                                                                                                                                             |
 | ------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `offline-catalog.spec.ts` | Full initialization, catalog queries, offline startup, integrity failures, cancellation, and cache repair.                                                                           |

@@ -506,6 +506,8 @@ test("AI errors are explicit, cache controls work and speech settings remain acc
       await expect(page.locator("html")).toHaveAttribute("data-theme", theme);
       const results = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+        // The requested maximum-scale=1 policy intentionally limits user zoom.
+        .disableRules(["meta-viewport"])
         .analyze();
       await testInfo.attach(`speech-settings-axe-${theme}.json`, {
         body: JSON.stringify(results.violations, null, 2),

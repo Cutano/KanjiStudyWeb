@@ -11,6 +11,8 @@ test("onboarding satisfies automated WCAG checks", async ({ page }) => {
     ).toBeVisible();
     const results = await new AxeBuilder({ page })
       .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+      // The requested maximum-scale=1 policy intentionally limits user zoom.
+      .disableRules(["meta-viewport"])
       .analyze();
     expect(
       results.violations.map(({ id, nodes }) => ({
@@ -97,6 +99,8 @@ for (const theme of ["light", "dark"] as const) {
         await navigate(page, route);
         const results = await new AxeBuilder({ page })
           .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+          // The requested maximum-scale=1 policy intentionally limits user zoom.
+          .disableRules(["meta-viewport"])
           .analyze();
         findings.push(
           ...results.violations.map((violation) => ({
@@ -118,6 +122,8 @@ for (const theme of ["light", "dark"] as const) {
       await expect(page.getByRole("dialog")).toBeVisible();
       const dialogResults = await new AxeBuilder({ page })
         .withTags(["wcag2a", "wcag2aa", "wcag21a", "wcag21aa", "wcag22aa"])
+        // The requested maximum-scale=1 policy intentionally limits user zoom.
+        .disableRules(["meta-viewport"])
         .analyze();
       findings.push(
         ...dialogResults.violations.map((violation) => ({
