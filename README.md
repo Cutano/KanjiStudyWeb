@@ -10,6 +10,10 @@
 </p>
 
 <p align="center">
+  <strong>Demo: <a href="https://cutano.github.io/KanjiStudyWeb/">cutano.github.io/KanjiStudyWeb</a></strong>
+</p>
+
+<p align="center">
   <a href="#install-and-go-offline"><img src="https://img.shields.io/badge/PWA-Offline--first-244c40?style=flat-square" alt="Offline-first PWA" /></a>
   <a href="docs/deployment.md"><img src="https://img.shields.io/badge/Docker-Ready-2496ed?style=flat-square&amp;logo=docker&amp;logoColor=white" alt="Docker deployment" /></a>
   <a href="#local-development"><img src="https://img.shields.io/badge/Node.js-24%2B-5f824f?style=flat-square&amp;logo=nodedotjs&amp;logoColor=white" alt="Node.js 24 or newer" /></a>
@@ -99,9 +103,9 @@ Compatible, authorized extension content can be imported later. Locked original 
 
 ## Quick start
 
-### GitHub Pages
+### Demo (GitHub Pages)
 
-Open **[Kanji Study Web](https://cutano.github.io/KanjiStudyWeb/)** and initialize the offline library. Updates to `main` deploy automatically after root-hosting and Pages-path verification. Study progress stays in your browser; use backup export/import when moving between this site and a self-hosted installation. See the [Pages deployment guide](docs/deployment.md#github-pages) for build and workflow details.
+Open the **[live demo](https://cutano.github.io/KanjiStudyWeb/)** and initialize the offline library. Updates to `main` deploy automatically after root-hosting and Pages-path verification. Study progress stays in your browser; use backup export/import when moving between this site and a self-hosted installation. See the [Pages deployment guide](docs/deployment.md#github-pages) for build and workflow details.
 
 ### Docker
 
