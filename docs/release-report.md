@@ -141,3 +141,14 @@ Built source revision `f093b7b3819984ec0ffa3fed9db4e5e78b590e7d` with the existi
 Published to the public Docker Hub repository [cutano/kanji-study-web](https://hub.docker.com/r/cutano/kanji-study-web). Registry inspection confirmed both Linux architectures and retained build provenance attestations. The release index digest is `sha256:b62e01fb6910c4c37aab6551b98d70d10e04c2c4f7a21f982749a75778d2a111`; tags `0.2.0`, `sha-f093b7b`, and `latest` identify that index. Anonymous Docker Hub API reads confirmed the repository is public. Credentials were read only through Docker's configured credential helper and were not stored in the project or image.
 
 The fixed release can be pulled as `cutano/kanji-study-web@sha256:b62e01fb6910c4c37aab6551b98d70d10e04c2c4f7a21f982749a75778d2a111`. Publishing this image does not provide an HTTPS application hostname.
+
+## Topbar search styling follow-up — 2026-10-07
+
+The topbar search previously inherited the generic yellow input focus outline around its square inner input. It now shares Library search's sage `:focus-within` outline around an 8px rounded outer control, with a theme-aware surface, border, and icon color. The inner input outline is suppressed only within these search controls; other controls keep their existing focus treatment. Compact spacing and responsive widths remain appropriate for the header.
+
+- TypeScript, production build, formatting, and whitespace checks passed. This is a CSS-only change; no new permanent tests were added and the unrelated unit suite was not rerun.
+- Eight focused browser checks passed: Chromium at 1440px and 320px, and WebKit at 390px and 320px, each in light and dark themes. The whole-control focus matches Library (2px sage outline, 2px offset, 8px corners), the inner input has no outline, and there is no horizontal clipping or page error. `/` still focuses topbar search, and Enter routes 今日 to the dictionary results.
+- Inspected [desktop light](screenshots/topbar-search-desktop.png) and [mobile dark](screenshots/topbar-search-mobile.png) focused-state captures from isolated browser contexts.
+- The local Docker deployment rebuilt and started healthy. Static host checks passed for the shell, icons, Wasm, nine content assets, cache headers, CSP, and missing assets. The entry assets are `index-CEObIdxH.js` and `index-xg9xY10Q.css`.
+
+This follow-up updates the local deployment; the published Docker Hub release described above remains unchanged.

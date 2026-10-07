@@ -575,12 +575,17 @@ rt {
   display: flex;
   align-items: center;
   gap: 10px;
-  color: #9ba494;
+  color: var(--muted);
+  border: 1px solid var(--border);
+  background: var(--surface);
+  border-radius: 8px;
+  padding: 3px 12px;
+  min-width: 0;
   max-width: 325px;
   width: 38%;
 }
 .global-search input {
-  padding: 6px 0;
+  padding: 8px 0;
   border: 0;
   background: none;
   border-radius: 0;
@@ -1167,10 +1172,12 @@ rt {
   font-size: 12px;
   min-width: 0;
 }
+.global-search:focus-within,
 .search-input:focus-within {
   outline: 2px solid #bdc9ac;
   outline-offset: 2px;
 }
+.global-search input:focus,
 .search-input input:focus {
   outline: none;
 }
