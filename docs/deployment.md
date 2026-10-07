@@ -51,6 +51,8 @@ Replace the hostname with the actual configured DNS name. Configure certificate 
 
 The included Nginx configuration sends a content security policy allowing local scripts, Wasm, local workers, and audio Blob URLs. Inline styles support the current React presentation. It also sets MIME types, prevents framing, disables content sniffing, and retains the same headers in static resource locations. If the reverse proxy adds its own policy, ensure it permits the application's local Wasm and worker execution.
 
+Optional user-configured [AI speech](ai-speech.md) additionally uses `connect-src` access to HTTPS providers or HTTP loopback providers (`localhost` and `127.0.0.1`). A reverse proxy's policy must also permit the selected API origin. That provider must accept browser CORS requests. The deployment never receives a shared API secret: each user configures their own device-local key, and generated audio stays in a separate browser cache.
+
 ## Cache and Routing Contract
 
 | Resource                                                                     | Server policy                                                           |

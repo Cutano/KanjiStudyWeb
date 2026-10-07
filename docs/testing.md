@@ -128,6 +128,8 @@ The following suites run against production assets and the real catalog, in desk
 
 `offline-host.ts` provides an ephemeral static origin with response fault injection. Closing its server proves network unavailability without mocking catalog responses. The update test changes the shell version and an HTML release marker while retaining the same real catalog, representing an application-only release with a compatible personal schema.
 
+`tts.spec.ts` adds optional speech-provider coverage. A separate local CORS endpoint returns playable fixture audio, while the application host mirrors the actual Nginx CSP. The tests verify native recording priority, browser fallback, request/authentication shape, persistent AI cache reuse with both hosts shut down, API errors without automatic retries, credential exclusion from profile backups, cache/key controls, and responsive settings accessibility. No real API key or paid generation is used. Unit tests separately exercise ten-entry/50,000,000-byte LRU limits, request coalescing, and clear/write races.
+
 ### 5.3 Failure Injection
 
 Exercise at least a failed response, truncation, manifest hash mismatch, quota/storage write failure, worker initialization failure, and interrupted update. Verify the recovery behavior through the application UI and the stored ready pointer. An error toast alone is insufficient when a corrupted resource remains marked ready.
